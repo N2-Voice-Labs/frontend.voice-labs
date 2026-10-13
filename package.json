@@ -14,7 +14,7 @@
     "@opennextjs/cloudflare": "^1.20.10",
     "animejs": "^4.5.0",
     "livekit-client": "latest",
-    "next": "latest",
+    "next": "16.3.8",
     "react": "latest",
     "react-dom": "latest"
   },
