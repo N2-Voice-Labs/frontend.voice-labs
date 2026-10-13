@@ -23,7 +23,7 @@ export function LandingPage() {
           <h1 className="hero-title">Voice AI that speaks your language. <em>Even when you switch.</em></h1>
           <p className="hero-intro">Create voice agents that follow the conversation across English, Russian, and the spaces in between.</p>
           <div className="hero-actions">
-            <Link className="button-link button-dark" href="/agents">Explore the platform <span aria-hidden="true">↗</span></Link>
+            <Link className="button-link button-dark" href="/agents">Try Live Voice <span aria-hidden="true">↗</span></Link>
             <a className="text-link" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a>
           </div>
           <div className="hero-proof"><span className="proof-wave" aria-hidden="true">〰</span><span>Made for real conversations<br /><strong>not rigid scripts</strong></span></div>

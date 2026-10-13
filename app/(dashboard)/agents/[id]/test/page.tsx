@@ -33,7 +33,9 @@ export default function VoicePlayground() {
   const [statusMessage, setStatusMessage] = useState("");
   const [runtimeStatus, setRuntimeStatus] = useState("");
   const [conversationActivity, setConversationActivity] = useState("Waiting for your speech");
-  const [speakerStatus, setSpeakerStatus] = useState("No active speaker");
+  const [microphoneActive, setMicrophoneActive] = useState(false);
+  const [agentSpeaking, setAgentSpeaking] = useState(false);
+  const [audioPlaybackError, setAudioPlaybackError] = useState("");
   const [conversationStatus, setConversationStatus] = useState("");
   const [conversationId, setConversationId] = useState("");
   const [sessionId, setSessionId] = useState("");
@@ -177,10 +179,12 @@ export default function VoicePlayground() {
   async function start() {
     setPhase("starting");
     runtimeRetryAtRef.current = 0;
-    setStatusMessage("Creating a Platform session…");
+    setStatusMessage("Requesting microphone permission…");
     setRuntimeStatus("");
     setConversationActivity("Waiting for your speech");
-    setSpeakerStatus("No active speaker");
+    setMicrophoneActive(false);
+    setAgentSpeaking(false);
+    setAudioPlaybackError("");
     setConversationStatus("");
     setMessages([]);
     setTranscriptError("");
@@ -188,6 +192,27 @@ export default function VoicePlayground() {
     let livekitRoom: Room | null = null;
 
     try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Microphone access is unavailable. Open Voice Labs over HTTPS or localhost and check browser support.");
+      }
+
+      let microphoneStream: MediaStream;
+      try {
+        microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (error) {
+        const name = error instanceof DOMException ? error.name : "";
+        if (name === "NotAllowedError" || name === "SecurityError") {
+          throw new Error("Microphone permission was denied. Allow microphone access in your browser and try again.");
+        }
+        if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+          throw new Error("No microphone was found. Connect a microphone and try again.");
+        }
+        throw error;
+      }
+      microphoneStream.getTracks().forEach((track) => track.stop());
+      if (!mountedRef.current) return;
+
+      setStatusMessage("Microphone permission granted · creating a Platform session…");
       const session = await createVoiceSession(params.id);
       createdSessionId = session.session_id;
       activeSessionIdRef.current = session.session_id;
@@ -221,6 +246,19 @@ export default function VoicePlayground() {
           audio.setAttribute("playsinline", "true");
           audio.dataset.voiceLabsAudio = "true";
           document.body.appendChild(audio);
+          try {
+            void audio.play().then(() => {
+              if (mountedRef.current) setAudioPlaybackError("");
+            }).catch(() => {
+              if (mountedRef.current && audio.isConnected) {
+                setAudioPlaybackError("The agent is speaking, but this browser blocked audio playback. Check site audio permissions and try again.");
+              }
+            });
+          } catch {
+            if (mountedRef.current && audio.isConnected) {
+              setAudioPlaybackError("The agent is speaking, but this browser blocked audio playback. Check site audio permissions and try again.");
+            }
+          }
         }
       });
       livekitRoom.on(RoomEvent.TrackUnsubscribed, (track) => {
@@ -230,9 +268,8 @@ export default function VoicePlayground() {
         if (!mountedRef.current) return;
         const localSpeaking = speakers.some((speaker) => speaker.isLocal);
         const remoteSpeaking = speakers.some((speaker) => !speaker.isLocal);
-        setSpeakerStatus(localSpeaking && remoteSpeaking ? "You and agent speaking"
-          : localSpeaking ? "You speaking"
-            : remoteSpeaking ? "Agent speaking" : "No active speaker");
+        setMicrophoneActive(localSpeaking);
+        setAgentSpeaking(remoteSpeaking);
       });
       livekitRoom.on(RoomEvent.Reconnecting, () => {
         if (!mountedRef.current) return;
@@ -248,7 +285,8 @@ export default function VoicePlayground() {
         roomRef.current = null;
         document.querySelectorAll("[data-voice-labs-audio]").forEach((element) => element.remove());
         if (!mountedRef.current) return;
-        setSpeakerStatus("No active speaker");
+        setMicrophoneActive(false);
+        setAgentSpeaking(false);
         if (intentionalDisconnect.current) return;
         setPhase("disconnected");
         setStatusMessage("LiveKit disconnected. The Platform session may still need to be ended.");
@@ -330,7 +368,9 @@ export default function VoicePlayground() {
       <p role="status">Connection: {phase}{statusMessage ? ` · ${statusMessage}` : ""}</p>
       <p>Runtime handoff: {runtimeStatus || "not started"}</p>
       <p aria-live="polite">Conversation activity: {conversationActivity}</p>
-      <p>Audio activity: {speakerStatus}</p>
+      <p aria-live="polite">Microphone activity: {microphoneActive ? "Speech detected" : "No speech detected"}</p>
+      <p aria-live="polite">AI speaking: {agentSpeaking ? "Yes" : "No"}</p>
+      {audioPlaybackError && <p role="alert">{audioPlaybackError}</p>}
       <p>Persisted conversation: {conversationStatus || "not started"}</p>
       {canStart ? <button type="button" onClick={start} disabled={busy}>Start conversation</button> : (
         <button type="button" onClick={end} disabled={busy || !sessionId}>

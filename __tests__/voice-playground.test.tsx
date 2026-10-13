@@ -18,12 +18,14 @@ const mocks = vi.hoisted(() => {
     disconnect: vi.fn(),
     endVoiceSession: vi.fn(),
     ensureVoiceSessionRunning: vi.fn(),
-  getConversationRuntimeState: vi.fn(),
+    getConversationRuntimeState: vi.fn(),
+    getUserMedia: vi.fn(),
     on: vi.fn((event: string, callback: (...args: unknown[]) => void) => {
       roomEvents[event] = callback;
     }),
     roomEvents,
     setMicrophoneEnabled: vi.fn(),
+    stopMicrophoneTrack: vi.fn(),
   };
 });
 
@@ -56,6 +58,11 @@ vi.mock("livekit-client", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  Object.defineProperty(navigator, "mediaDevices", {
+    configurable: true,
+    value: { getUserMedia: mocks.getUserMedia },
+  });
+  mocks.getUserMedia.mockResolvedValue({ getTracks: () => [{ stop: mocks.stopMicrophoneTrack }] });
   vi.mocked(useParams).mockReturnValue({ id: "agent-1" });
   vi.mocked(createVoiceSession).mockResolvedValue({
     session_id: "session-1",
@@ -226,6 +233,72 @@ test("starts the selected agent conversation, joins with its participant token, 
   view.unmount();
 });
 
+test("requests microphone permission before creating the Platform session", async () => {
+  const view = render(<VoicePlayground />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Start conversation" }));
+  await screen.findByText(/Connected to LiveKit; microphone is on\./);
+
+  expect(mocks.getUserMedia).toHaveBeenCalledWith({ audio: true });
+  expect(mocks.stopMicrophoneTrack).toHaveBeenCalledOnce();
+  expect(mocks.getUserMedia.mock.invocationCallOrder[0])
+    .toBeLessThan(vi.mocked(createVoiceSession).mock.invocationCallOrder[0]);
+  view.unmount();
+});
+
+test("shows actionable microphone permission errors without creating a session", async () => {
+  mocks.getUserMedia.mockRejectedValue(new DOMException("Permission denied", "NotAllowedError"));
+  const view = render(<VoicePlayground />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Start conversation" }));
+
+  expect((await screen.findByRole("status")).textContent).toContain(
+    "Microphone permission was denied. Allow microphone access in your browser and try again.",
+  );
+  expect(createVoiceSession).not.toHaveBeenCalled();
+  view.unmount();
+});
+
+test("shows microphone and AI speaking activity from LiveKit speakers", async () => {
+  const view = render(<VoicePlayground />);
+  fireEvent.click(screen.getByRole("button", { name: "Start conversation" }));
+  await screen.findByText(/Connected to LiveKit; microphone is on\./);
+
+  act(() => mocks.roomEvents.activeSpeakersChanged([
+    { isLocal: true },
+    { isLocal: false },
+  ]));
+
+  expect(screen.getByText("Microphone activity: Speech detected")).toBeTruthy();
+  expect(screen.getByText("AI speaking: Yes")).toBeTruthy();
+
+  act(() => mocks.roomEvents.activeSpeakersChanged([]));
+  expect(screen.getByText("Microphone activity: No speech detected")).toBeTruthy();
+  expect(screen.getByText("AI speaking: No")).toBeTruthy();
+  view.unmount();
+});
+
+test("shows a visible error when browser audio playback is blocked", async () => {
+  const view = render(<VoicePlayground />);
+  fireEvent.click(screen.getByRole("button", { name: "Start conversation" }));
+  await screen.findByText(/Connected to LiveKit; microphone is on\./);
+
+  const audio = document.createElement("audio");
+  audio.play = vi.fn().mockRejectedValue(new DOMException("Playback blocked", "NotAllowedError"));
+  const track = {
+    kind: "audio",
+    attach: vi.fn(() => audio),
+    detach: vi.fn(() => [audio]),
+  };
+  act(() => mocks.roomEvents.trackSubscribed(track));
+
+  expect((await screen.findByRole("alert")).textContent).toContain(
+    "The agent is speaking, but this browser blocked audio playback.",
+  );
+  expect(audio.play).toHaveBeenCalledOnce();
+  view.unmount();
+});
+
 test("reports an ended session after LiveKit disconnect cleanup succeeds", async () => {
   mocks.endVoiceSession.mockImplementationOnce(async () => {
     vi.mocked(getConversation).mockResolvedValue({
@@ -286,6 +359,7 @@ test("ending the route during session creation closes the late Platform session 
 
   const view = render(<VoicePlayground />);
   fireEvent.click(screen.getByRole("button", { name: "Start conversation" }));
+  await waitFor(() => expect(createVoiceSession).toHaveBeenCalledOnce());
   view.unmount();
   resolveSession({
     session_id: "late-session",

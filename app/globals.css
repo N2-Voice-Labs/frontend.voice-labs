@@ -77,20 +77,30 @@ button, input, textarea, select { font: inherit; }
 .hero-proof { display: flex; align-items: center; gap: 12px; margin-top: var(--space-12); color: #848681; font-size: 11px; line-height: 1.55; }
 .hero-proof strong { color: var(--ink); font-weight: 600; }
 .proof-wave { color: var(--accent); font: 36px/1 var(--serif); }
-.hero-art { position: relative; width: min(100%, 590px); aspect-ratio: 1; justify-self: end; display: grid; place-items: center; margin-top: -6px; }
-.hero-art::before { position: absolute; inset: 12%; content: ""; background: radial-gradient(circle at 50% 48%, #ecebdc 0, #eeede5 34%, transparent 68%); border-radius: 50%; }
-.art-orbit { position: absolute; z-index: 1; width: 78%; height: 42%; border: 1px solid #b9bbb4; border-radius: 50%; transform: rotate(-38deg); }
-.orbit-two { width: 85%; height: 58%; border-color: #d1d2ca; transform: rotate(39deg); }
-.art-core { position: relative; z-index: 2; width: 41%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 27px; color: white; background: var(--ink); border-radius: 50%; box-shadow: 0 18px 60px rgb(25 27 27 / 18%); }
+.hero-art { --pointer-x: 0px; --pointer-y: 0px; position: relative; width: min(100%, 590px); aspect-ratio: 1; justify-self: end; display: grid; place-items: center; margin-top: -6px; isolation: isolate; }
+.art-aura { position: absolute; inset: 12%; z-index: -1; background: radial-gradient(circle at 50% 48%, #ebe9d8 0, #efeee7 34%, rgb(239 238 231 / 0%) 69%); border-radius: 50%; transform: translate(var(--pointer-x), var(--pointer-y)); transition: transform 700ms cubic-bezier(.2,.75,.2,1); }
+.art-signal { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform: translate(calc(var(--pointer-x) * -.35), calc(var(--pointer-y) * -.35)); transition: transform 700ms cubic-bezier(.2,.75,.2,1); }
+.art-orbit, .signal-trace { fill: none; stroke: #b9bbb4; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.orbit-two { stroke: #d1d2ca; }
+.orbit-three { stroke: #dedfd7; stroke-dasharray: 2 8; }
+.signal-trace { stroke: url(#signal-gradient); stroke-width: 2; stroke-dasharray: 9 22; opacity: .82; }
+.orbit-node { fill: var(--paper); stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.node-two { fill: var(--signal); stroke: var(--ink); }
+.node-three { fill: var(--accent); stroke: var(--paper); }
+.art-core { position: relative; z-index: 2; width: 41%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; color: white; background: radial-gradient(circle at 38% 30%, #343a3a, var(--ink) 68%); border: 1px solid rgb(255 255 255 / 12%); border-radius: 50%; box-shadow: 0 18px 60px rgb(25 27 27 / 18%), inset 0 0 36px rgb(255 255 255 / 3%); transition: box-shadow 500ms ease, transform 700ms cubic-bezier(.2,.75,.2,1); }
+.hero-art:hover .art-core { box-shadow: 0 25px 75px rgb(25 27 27 / 22%), 0 0 0 8px rgb(217 244 85 / 12%), inset 0 0 36px rgb(255 255 255 / 4%); }
 .core-mark { margin-left: -.12em; font: 600 clamp(62px, 7vw, 92px)/.8 var(--display); letter-spacing: -.12em; }
 .core-mark span { color: var(--accent); }
 .core-sound { height: 50px; display: flex; align-items: center; gap: 4px; }
 .core-sound i { width: 3px; display: block; background: var(--signal); border-radius: 4px; opacity: .88; transform-origin: center; }
+.core-index { position: absolute; bottom: 16%; color: #969b94; font: 7px var(--mono); letter-spacing: .15em; }
 .orbit-label { position: absolute; z-index: 3; display: flex; align-items: center; gap: 7px; color: var(--ink); font: 500 10px var(--mono); letter-spacing: .04em; }
-.orbit-label span { color: #969891; font-size: 9px; }
+.orbit-label i { color: #969891; font-size: 9px; font-style: normal; }
 .label-en { top: 16%; left: 14%; }
 .label-ru { right: 9%; bottom: 29%; }
-.label-live { top: 25%; right: 8%; padding: 8px 10px; background: var(--signal); border-radius: 2px; font-size: 9px; }
+.language-pip { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+.label-ru .language-pip { background: #78a292; }
+.label-live { top: 25%; right: 8%; padding: 8px 10px; background: var(--signal); border-radius: 2px; font-size: 8px; }
 .label-live i { background: var(--accent-dark); }
 .label-live i, .agent-status i { width: 6px; height: 6px; display: inline-block; background: #36765c; border-radius: 50%; }
 .hero-caption { position: absolute; z-index: 3; left: 2%; bottom: 17%; color: #686a66; font: italic 17px/1.4 var(--serif); }
