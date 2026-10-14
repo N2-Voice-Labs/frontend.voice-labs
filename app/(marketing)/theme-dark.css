@@ -109,7 +109,7 @@ html[data-vl-theme="dark"] .marketing-root .orb-voice-note { color: #8b8f88; }
 
 /* Hero code-switch: flag colours, lightened for the dark background. */
 html[data-vl-theme="dark"] .marketing-root .code-switch { --lang-a: #86a6ff; }
-html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="ru"] { --lang-a: #ff6b5b; }
-html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="ky"] { --lang-a: #f2b632; }
+html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="ru"] { --lang-a: #6f9bff; --lang-b: #ff6b5b; }
+html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="ky"] { --lang-a: #ff5a6a; --lang-b: #f2c230; }
 html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="kk"] { --lang-a: #35c7e0; }
 html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="ko"] { --lang-a: #ff7a86; --lang-b: #6ea0ff; }

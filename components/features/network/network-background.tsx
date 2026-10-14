@@ -49,7 +49,9 @@ const smooth = (edge0: number, edge1: number, x: number) => {
  *   signal  + caller voices hop along the lines to an agent node, which answers with a pulse
  * The content column is dimmed so the work stays readable. The "hero" variant sits inside the landing hero
  * instead of fixed to the viewport: it dims the headline block, aims its signals at the orb, and pauses
- * once scrolled out of view. It pauses when the tab is hidden, and it
+ * once scrolled out of view. On phones that variant plays short bursts (one signal in, the orb answers) every
+ * few seconds, or when the orb is tapped, and draws nothing in between; low-end and data-saver devices keep
+ * the still frame. It pauses when the tab is hidden, and it
  * draws a single still frame under prefers-reduced-motion and on narrow screens. Colours come from the
  * workspace tokens (--ink, --accent) so both themes work; nothing here is audio and nothing is sent.
  */
@@ -69,6 +71,7 @@ export function NetworkBackground({ mode = "active", variant = "page" }: Readonl
 
     let W = 0, H = 0, raf = 0, last = performance.now(), t = 0;
     let onScreen = true;
+    let burstTimer = 0;
     let nodes: NetNode[] = [];
     let core = -1;
     let coreRadius = 0; // hero: the orb's radius, so pulses leave its edge rather than hiding behind it
@@ -82,6 +85,12 @@ export function NetworkBackground({ mode = "active", variant = "page" }: Readonl
     const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 
     const still = () => motionQuery.matches || narrowQuery.matches;
+    // Phones: bursts instead of a loop, and only where the device can spare the frames.
+    const burstMode = () => {
+      if (variant !== "hero" || !narrowQuery.matches || motionQuery.matches) return false;
+      const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
+      return !nav.connection?.saveData && (nav.hardwareConcurrency ?? 8) > 4 && (nav.deviceMemory ?? 8) >= 4;
+    };
     const inkA = (a: number) => `rgba(${ink[0]},${ink[1]},${ink[2]},${a.toFixed(3)})`;
     const accentA = (a: number) => `rgba(${accent[0]},${accent[1]},${accent[2]},${a.toFixed(3)})`;
 
@@ -96,7 +105,7 @@ export function NetworkBackground({ mode = "active", variant = "page" }: Readonl
     function build() {
       const rect = canvas!.getBoundingClientRect();
       W = rect.width; H = rect.height;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, narrowQuery.matches ? 1.5 : 2);
       canvas!.width = Math.round(W * dpr); canvas!.height = Math.round(H * dpr);
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       seed = 7; nodes = [];
@@ -152,7 +161,7 @@ export function NetworkBackground({ mode = "active", variant = "page" }: Readonl
       if (core < 0) return;
       // start at a left or bottom edge node and walk greedily toward the agent, with some wander
       const starts = nodes.map((_, i) => i).filter((i) => variant === "hero"
-        ? nodes[i].x > W * 0.45 && (nodes[i].x > W - 70 || nodes[i].y < 45 || nodes[i].y > H - 60)
+        ? nodes[i].x > W * 0.45 && (nodes[i].x > W - 70 || nodes[i].y < 45 || nodes[i].y > H - 60) && (W >= 760 || nodes[i].y > nodes[core].y - 260)
         : nodes[i].x < W * 0.5 && (nodes[i].x < 40 || nodes[i].y > H - 40));
       if (!starts.length) return;
       let cur = starts[Math.floor(Math.random() * starts.length)];
@@ -270,10 +279,11 @@ export function NetworkBackground({ mode = "active", variant = "page" }: Readonl
       raf = 0;
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now; t += dt;
-      const m = modeRef.current;
+      const burst = still();
+      const m = burst ? "idle" : modeRef.current;
       pointer.x += (pointer.tx - pointer.x) * 0.08;
       pointer.y += (pointer.ty - pointer.y) * 0.08;
-      if (m !== "idle") {
+      if (!burst && m !== "idle") {
         nextWave -= dt;
         if (nextWave <= 0) {
           nextWave = 5 + Math.random() * 3;
@@ -281,20 +291,44 @@ export function NetworkBackground({ mode = "active", variant = "page" }: Readonl
           if (n) waves.push({ x: n.x, y: n.y, r: 0 });
         }
       }
-      if (m === "signal") {
+      if (!burst && m === "signal") {
         nextSignal -= dt;
         if (nextSignal <= 0) { nextSignal = 3.2 + Math.random() * 2.4; spawnSignal(); }
       }
       draw(dt, m);
+      if (burst && !signals.length && !pulses.length) {
+        // the burst is over: settle on the still frame and wait for the next one
+        nodes.forEach((n) => { n.heat = 0; });
+        draw(0, "idle");
+        scheduleBurst(4500 + Math.random() * 2000);
+        return;
+      }
       raf = requestAnimationFrame(frame);
     }
 
-    const stop = () => { if (raf) cancelAnimationFrame(raf); raf = 0; };
+    function startFrames() {
+      if (raf || !onScreen || document.hidden) return;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+
+    function scheduleBurst(delay: number) {
+      window.clearTimeout(burstTimer);
+      burstTimer = window.setTimeout(() => {
+        if (!burstMode() || !onScreen || document.hidden) return; // sync() restarts it when visible again
+        spawnSignal();
+        if (signals.length) startFrames(); else scheduleBurst(1500);
+      }, delay);
+    }
+
+    const stop = () => { if (raf) cancelAnimationFrame(raf); raf = 0; window.clearTimeout(burstTimer); };
     // One place decides between animating and a single still frame.
     const sync = () => {
       stop();
-      if (still()) draw(0, "idle");
-      else if (!document.hidden && onScreen) { last = performance.now(); raf = requestAnimationFrame(frame); }
+      if (still()) {
+        draw(0, "idle");
+        if (burstMode() && onScreen && !document.hidden) scheduleBurst(2500);
+      } else if (!document.hidden && onScreen) { last = performance.now(); raf = requestAnimationFrame(frame); }
     };
 
     readColors();
@@ -323,6 +357,13 @@ export function NetworkBackground({ mode = "active", variant = "page" }: Readonl
       pointer.on = true;
     };
     const onLeave = () => { pointer.on = false; };
+    // A tap on the hero orb sends one signal in now, whatever mode the field is in.
+    const onPing = () => {
+      if (variant !== "hero" || motionQuery.matches || !onScreen || signals.length > 3) return;
+      spawnSignal();
+      if (signals.length && still()) startFrames();
+    };
+    window.addEventListener("vl:orb-ping", onPing);
     if (finePointer) {
       window.addEventListener("pointermove", onMove, { passive: true });
       document.documentElement.addEventListener("pointerleave", onLeave);
@@ -337,6 +378,7 @@ export function NetworkBackground({ mode = "active", variant = "page" }: Readonl
       motionQuery.removeEventListener("change", sync);
       narrowQuery.removeEventListener("change", sync);
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("vl:orb-ping", onPing);
       document.documentElement.removeEventListener("pointerleave", onLeave);
     };
   }, []);

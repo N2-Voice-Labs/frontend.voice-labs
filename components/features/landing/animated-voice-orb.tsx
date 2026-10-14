@@ -32,6 +32,8 @@ export function AnimatedVoiceOrb() {
       mediaQueries: { reduceMotion: "(prefers-reduced-motion: reduce)" },
     }).add((self) => {
       if (!self || self.matches.reduceMotion) return;
+      // Phones hide the orbit rings, nodes and trace (see globals.css), so they must not animate them either.
+      const phone = typeof window.matchMedia === "function" && window.matchMedia("(max-width: 720px)").matches;
 
       animate(".art-core", {
         opacity: [0, 1],
@@ -41,28 +43,30 @@ export function AnimatedVoiceOrb() {
         delay: 250,
         ease: "outExpo",
       });
-      animate(".art-orbit", {
-        opacity: [0, 1],
-        scale: [0.8, 1],
-        delay: stagger(130, { start: 250 }),
-        duration: 1100,
-        ease: "outExpo",
-      });
-      animate(".orbit-node", {
-        opacity: [0, 1],
-        scale: [0.25, 1],
-        delay: stagger(90, { start: 400 }),
-        duration: 700,
-        ease: "outBack",
-      });
-      const orbit = animate(".orbit-one", {
+      if (!phone) {
+        animate(".art-orbit", {
+          opacity: [0, 1],
+          scale: [0.8, 1],
+          delay: stagger(130, { start: 250 }),
+          duration: 1100,
+          ease: "outExpo",
+        });
+        animate(".orbit-node", {
+          opacity: [0, 1],
+          scale: [0.25, 1],
+          delay: stagger(90, { start: 400 }),
+          duration: 700,
+          ease: "outBack",
+        });
+      }
+      const orbit = phone ? null : animate(".orbit-one", {
         rotate: ["-30deg", "-24deg"],
         duration: 18000,
         ease: "linear",
         alternate: true,
         loop: true,
       });
-      const trace = animate(".signal-trace", {
+      const trace = phone ? null : animate(".signal-trace", {
         strokeDashoffset: [0, -150],
         duration: 9000,
         ease: "linear",
@@ -81,13 +85,13 @@ export function AnimatedVoiceOrb() {
       if (typeof IntersectionObserver === "function") {
         observer = new IntersectionObserver(([entry]) => {
           if (!entry.isIntersecting) {
-            orbit.pause();
-            trace.pause();
+            orbit?.pause();
+            trace?.pause();
             bars.current?.pause();
             return;
           }
-          orbit.resume();
-          trace.resume();
+          orbit?.resume();
+          trace?.resume();
           if (element.dataset.live !== "true") bars.current?.resume();
         });
         observer.observe(element);
@@ -164,13 +168,26 @@ export function AnimatedVoiceOrb() {
     event.currentTarget.style.setProperty("--pointer-y", `${y * 14}px`);
   }
 
+  // A tap on the orb sends one signal in through the hero network and lets the orb answer. It costs
+  // nothing until someone taps, so it is the phone's stand-in for the desktop's continuous motion.
+  function pingOrb(event: React.PointerEvent<HTMLDivElement>) {
+    if ((event.target as Element).closest(".orb-voice")) return;
+    if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const element = event.currentTarget;
+    element.classList.remove("is-ping");
+    void element.offsetWidth; // restart the CSS animation on a quick second tap
+    element.classList.add("is-ping");
+    window.setTimeout(() => element.classList.remove("is-ping"), 900);
+    window.dispatchEvent(new CustomEvent("vl:orb-ping"));
+  }
+
   function resetArtwork(event: React.PointerEvent<HTMLDivElement>) {
     event.currentTarget.style.setProperty("--pointer-x", "0px");
     event.currentTarget.style.setProperty("--pointer-y", "0px");
   }
 
   return (
-    <div className="hero-art" ref={root} data-parallax-exit="56" onPointerMove={moveArtwork} onPointerLeave={resetArtwork}>
+    <div className="hero-art" ref={root} data-parallax-exit="56" onPointerMove={moveArtwork} onPointerLeave={resetArtwork} onPointerUp={pingOrb}>
       <div className="art-visual" role="img" aria-label="Illustrative voice signal. It reacts to your voice only if you choose Speak to it.">
       <div className="art-aura" aria-hidden="true" />
       <svg className="art-signal" viewBox="0 0 600 600" aria-hidden="true">

@@ -26,3 +26,10 @@ test("splits the phrase into whole words made of letters so they can ripple", ()
   expect(words).toEqual(["Even", "when", "you", "switch."]);
   expect(container.querySelectorAll(".cs-char").length).toBe("Evenwhenyouswitch.".length);
 });
+
+test("starts as one colour band; two-colour flags are split by CSS data-b after a switch", () => {
+  const { container } = render(<h1><CodeSwitch /></h1>);
+  const bands = new Set([...container.querySelectorAll(".cs-char")].map((letter) => letter.getAttribute("data-b")));
+
+  expect([...bands]).toEqual(["0"]);
+});

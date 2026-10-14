@@ -287,6 +287,12 @@ html.lenis, html.lenis body { height: auto; }
   .gallery-controls { justify-content: flex-start; }
 }
 
+/* A tap on the orb: it swells once and its bars jump. Transform only; removed after 0.9 s. */
+.hero-art.is-ping .art-core { animation: orb-ping .7s var(--ease-expo, ease-out); }
+.hero-art.is-ping .core-sound { animation: orb-ping-bars .7s var(--ease-expo, ease-out); }
+@keyframes orb-ping { 40% { transform: scale(1.05); } }
+@keyframes orb-ping-bars { 30% { transform: scaleY(1.35); } }
+
 /* Hero network: the dashboard's node field, full-bleed behind the hero and faded out at its foot. */
 .hero-stage { position: relative; }
 .hero-network { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; -webkit-mask-image: linear-gradient(#000 62%, transparent); mask-image: linear-gradient(#000 62%, transparent); }
@@ -297,13 +303,15 @@ html.lenis, html.lenis body { height: auto; }
 /* One colour per language, taken from its flag; lighter variants on dark (theme-dark.css).
    Korean is the taegeuk red and blue, and upright because Hangul has no italic. */
 .code-switch { word-break: keep-all; --lang-a: #1f3fa0; transition: color .6s ease; color: var(--lang-a); }
-.code-switch[data-lang="ru"] { --lang-a: #d52b1e; }
-.code-switch[data-lang="ky"] { --lang-a: #b07a00; }
+.code-switch[data-lang="ru"] { --lang-a: #0039a6; --lang-b: #d52b1e; }
+.code-switch[data-lang="ky"] { --lang-a: #d40f2a; --lang-b: #b07a00; }
 .code-switch[data-lang="kk"] { --lang-a: #0092ab; }
 .code-switch[data-lang="ko"] { --lang-a: #cd2e3a; --lang-b: #0047a0; font-style: normal; }
 /* Letters are separate boxes so they can ripple; words stay whole. Korean blends red to blue letter by letter. */
 .cs-word { display: inline-block; white-space: nowrap; }
 .cs-char { display: inline-block; }
+/* Two-colour flags: words are split across the flag's colours (Russian blue then red, Kyrgyz red then yellow). */
+.code-switch[data-lang="ru"] .cs-char[data-b="1"], .code-switch[data-lang="ky"] .cs-char[data-b="1"] { color: var(--lang-b); }
 .code-switch[data-lang="ko"] .cs-char { color: color-mix(in srgb, var(--lang-b) var(--p, 0%), var(--lang-a)); }
 /* SplitText wraps each line in .split-line-mask (overflow: clip). Give descenders and italic overhang
    room inside the mask without changing the heading's layout. */
