@@ -31,5 +31,5 @@ test("the page keeps one h1 and no removed sections", () => {
 
   expect(container.querySelectorAll("h1")).toHaveLength(1);
   expect(container.querySelector(".process-section, .usecase-section")).toBeNull();
-  expect(container.querySelector(".closing-uses")?.textContent).toContain("Customer care");
+  expect(container.querySelector(".closing-uses")?.textContent?.toLowerCase()).toContain("customer care");
 });

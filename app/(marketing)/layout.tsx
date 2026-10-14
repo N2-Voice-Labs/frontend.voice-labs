@@ -24,7 +24,7 @@ export default function MarketingLayout({ children }: Readonly<{ children: React
       </div>
     </header>
     {children}
-    <footer className="marketing-footer"><Link className="marketing-brand footer-brand" href="/"><span className="brand-glyph">v<span>.</span></span><span>voice labs</span></Link><p>Make room for more voices.</p><div><a href="#product">Product</a><a href="#platform">How it works</a><Link href="/agents">Open platform ↗</Link></div><span className="footer-copy">© 2026 Voice Labs</span></footer>
+    <footer className="marketing-footer"><Link className="marketing-brand footer-brand" href="/"><span className="brand-glyph">v<span>.</span></span><span>voice labs</span></Link><p>Make room for more voices.</p><div><a href="#product">Product</a><a href="#platform">How it works</a><Link href="/agents">Open platform</Link></div><span className="footer-copy">© 2026 Voice Labs</span></footer>
     <LandingMotion />
   </div>;
 }

@@ -13,10 +13,10 @@ const examples = [
   },
   {
     label: "Natural turn-taking",
-    language: "ENGLISH",
+    language: "English",
     user: "Can you help me find a quieter time to call?",
     agent: "Absolutely. Would tomorrow morning work better for you?",
-    note: "Clear turns and calm pacing make space for people to think.",
+    note: "Turns stay clear and the pacing leaves people room to think.",
   },
 ];
 
@@ -41,7 +41,7 @@ export function VoicePreview() {
     <section className="preview-card" aria-label="Illustrative voice conversation preview">
       <div className="preview-topline">
         <span className="preview-label"><span className="preview-dot" /> Conversation preview</span>
-        <span className="preview-badge">ILLUSTRATIVE</span>
+        <span className="preview-badge">Illustrative</span>
       </div>
       <div className="preview-body">
         <div className="preview-side-note">
@@ -49,9 +49,9 @@ export function VoicePreview() {
           <span>{example.language}</span>
         </div>
         <div className="conversation-lines" aria-live="polite" ref={lines}>
-          <p className="speaker-label">YOU <span>· 00:04</span></p>
+          <p className="speaker-label">You <span>· 00:04</span></p>
           <p className="speech user-speech">{example.user}</p>
-          <p className="speaker-label agent-speaker">VOICE LABS <span>· 00:06</span></p>
+          <p className="speaker-label agent-speaker">Voice Labs <span>· 00:06</span></p>
           <p className="speech agent-speech">{example.agent}</p>
         </div>
         <div className="preview-wave" aria-hidden="true" ref={waves}>

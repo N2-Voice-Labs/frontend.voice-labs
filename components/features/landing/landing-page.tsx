@@ -8,18 +8,18 @@ import { VoicePreview } from "./voice-preview";
 import { WorkspaceShowcase } from "./workspace-showcase";
 
 const capabilities = [
-  { number: "01", title: "Multilingual by nature", copy: "Build for English, Russian, and the way people actually move between them. More languages can follow the conversation, not a settings menu." },
-  { number: "02", title: "Made for real-time", copy: "Connect speech, language, and voice in one responsive loop. Let people finish a thought, change direction, and speak over the agent." },
-  { number: "03", title: "Your choice of providers", copy: "Configure speech, language, and voice providers for each agent, with runtime defaults when you need a simpler start." },
+  { number: "01", title: "Mixed-language conversations", copy: "Agents handle English, Russian, and callers who move between the two within a single sentence." },
+  { number: "02", title: "Real-time speech", copy: "Speech, language, and voice work in one responsive loop. Callers can finish a thought, change direction, and speak over the agent." },
+  { number: "03", title: "Configurable providers", copy: "Choose speech, language, and voice providers for each agent, or start from the runtime defaults." },
 ];
 
 const facts = [
   { value: 3, label: "provider layers", copy: "Speech, language, and voice, each configurable per agent." },
-  { value: 2, label: "languages, one conversation", copy: "English and Russian, in the same breath." },
+  { value: 2, label: "languages, one conversation", copy: "English and Russian within one conversation." },
   { value: 1, label: "workspace, end to end", copy: "Build, test live, and review in one place." },
 ];
 
-const useCases = ["Customer care", "Travel & stays", "Appointments", "Public services", "and what’s next"];
+const useCases = ["Customer care", "Travel and stays", "Appointments", "Public services"];
 
 export function LandingPage() {
   return (
@@ -27,11 +27,11 @@ export function LandingPage() {
       <section className="hero section-wrap">
         <SectionAmbience kind="hero" />
         <div className="hero-copy">
-          <p className="eyebrow hero-eyebrow"><span className="eyebrow-mark" /> A voice platform for the way people speak</p>
+          <p className="eyebrow hero-eyebrow"><span className="eyebrow-mark" /> Voice agents for English and Russian</p>
           <h1 className="hero-title">Voice AI that speaks your language. <em><CodeSwitch /></em></h1>
-          <p className="hero-intro">Create voice agents that follow the conversation across English, Russian, and the spaces in between.</p>
+          <p className="hero-intro">Build voice agents that follow callers when they switch between English and Russian mid-conversation.</p>
           <div className="hero-actions">
-            <Link className="button-link button-dark" href="/agents">Try Live Voice <span aria-hidden="true">↗</span></Link>
+            <Link className="button-link button-dark" href="/agents">Try live voice <span aria-hidden="true">↗</span></Link>
             <a className="text-link" href="#platform">See how it works <span aria-hidden="true">↓</span></a>
           </div>
         </div>
@@ -42,9 +42,9 @@ export function LandingPage() {
         <SectionAmbience kind="signal" />
         <div className="section-wrap signal-grid">
           <div className="section-heading">
-            <p className="eyebrow" data-step="0">The human signal</p>
-            <h2 data-split>People don’t speak in dropdowns.</h2>
-            <p className="section-intro" data-step="1">A conversation can begin in one language and end in another. Voice Labs is built around that simple, human reality.</p>
+            <p className="eyebrow" data-step="0">Language switching</p>
+            <h2 data-split>Conversations don’t stay in one language.</h2>
+            <p className="section-intro" data-step="1">Callers often start in one language and finish in another. Voice Labs agents follow the change without asking them to choose again.</p>
             <div className="signal-detail" data-step="2"><span className="detail-line" /><span>Language is fluid.<br /><strong>Your agent can be too.</strong></span></div>
           </div>
           <div data-step="0" data-step-from="scale"><VoicePreview /></div>
@@ -53,8 +53,8 @@ export function LandingPage() {
 
       <section className="capability-section" data-sequence>
         <div className="section-wrap">
-          <p className="eyebrow" data-step="0">Built for voice</p>
-          <div className="capability-heading"><h2 data-step="0">Less translation.<br /><em>More understanding.</em></h2><p data-step="1">Give your team the tools to shape voice experiences around people, providers, and the work in front of them.</p></div>
+          <p className="eyebrow" data-step="0">Capabilities</p>
+          <div className="capability-heading"><h2 data-step="0">Built for<br /><em>real conversations.</em></h2><p data-step="1">Configure how each agent listens, reasons, and speaks, and test it live before it takes a call.</p></div>
           <div className="capability-list">{capabilities.map((item) => <article className="capability-row" key={item.number} data-step="2"><span className="cap-number">{item.number}</span><h3>{item.title}</h3><p>{item.copy}</p><span className="cap-arrow" aria-hidden="true">↗</span></article>)}</div>
         </div>
       </section>
@@ -79,18 +79,18 @@ export function LandingPage() {
       </section>
 
       <section className="compare-section section-wrap" id="compare" aria-labelledby="compare-title" data-sequence>
-        <p className="eyebrow" data-step="0">A different kind of voice</p>
+        <p className="eyebrow" data-step="0">Comparison</p>
         <div className="compare-intro">
-          <h2 id="compare-title" data-step="0">Not another<br /><em>phone menu.</em></h2>
-          <p data-step="1">How Voice Labs differs from scripted voice menus in the moments that matter to the person on the line.</p>
+          <h2 id="compare-title" data-step="0">Compared with<br /><em>scripted phone menus.</em></h2>
+          <p data-step="1">Where Voice Labs behaves differently in the moments that matter to the person on the call.</p>
         </div>
         <div data-step="2"><Comparison /></div>
       </section>
 
       <section className="gallery-section" aria-labelledby="gallery-title" data-sequence>
         <div className="section-wrap">
-          <p className="eyebrow" data-step="0">Inside the workspace</p>
-          <h2 id="gallery-title" data-step="0">A closer look at the workspace.</h2>
+          <p className="eyebrow" data-step="0">Workspace</p>
+          <h2 id="gallery-title" data-step="0">A look inside the workspace.</h2>
         </div>
         <div data-step="1" data-step-from="fade"><ScreenshotGallery /></div>
       </section>
@@ -103,11 +103,11 @@ export function LandingPage() {
             <div className="workspace-content"><div className="workspace-title"><div><small>VOICE AGENTS</small><strong>Your agents</strong></div></div><div className="workspace-agent"><span className="agent-avatar">◌</span><div><strong>Concierge</strong><small>English · Русский</small></div><span className="agent-status"><i /> Ready</span></div><div className="workspace-agent"><span className="agent-avatar avatar-coral">◉</span><div><strong>Studio guide</strong><small>English</small></div><span className="agent-status status-draft"><i /> Draft</span></div></div>
           </div>
         </div>
-        <p className="eyebrow" data-step="0">Start with a conversation</p>
-        <h2 data-split>Give your next idea<br />a voice.</h2>
-        <p data-step="1">Bring a use case. Leave with a clearer sense of what it could sound like.</p>
-        <Link className="button-link button-coral" href="/agents" data-step="1">Step into Voice Labs <span aria-hidden="true">↗</span></Link>
-        <p className="closing-uses" data-step="2">{useCases.join("  ·  ")}</p>
+        <p className="eyebrow" data-step="0">Get started</p>
+        <h2 data-split>Build your first<br />voice agent.</h2>
+        <p data-step="1">Set up an agent, speak to it in the playground, and review the conversation afterwards.</p>
+        <Link className="button-link button-coral" href="/agents" data-step="1">Open Voice Labs <span aria-hidden="true">↗</span></Link>
+        <p className="closing-uses" data-step="2">Used for {useCases.map((item) => item.toLowerCase()).join(", ")}.</p>
       </section>
     </main>
   );

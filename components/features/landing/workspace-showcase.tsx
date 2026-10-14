@@ -9,7 +9,7 @@ import { scrollToY } from "./motion/scroll-controller";
 const views = [
   { id: "agents", number: "01", tab: "Configure", area: "Agents", copy: "Set purpose, instructions, languages, and voice for each agent, in one focused workspace." },
   { id: "playground", number: "02", tab: "Test live", area: "Playground", copy: "Open a live session, speak naturally, and see what the runtime hears." },
-  { id: "conversations", number: "03", tab: "Review", area: "Conversations", copy: "Learn from every turn: review saved transcripts and runtime events to improve the next call." },
+  { id: "conversations", number: "03", tab: "Review", area: "Conversations", copy: "Review saved transcripts and runtime events, then adjust the agent before the next call." },
 ] as const;
 
 const icons = [
@@ -102,8 +102,8 @@ export function WorkspaceShowcase() {
         <div className="section-wrap showcase-grid">
           <div className="showcase-copy">
             <p className="eyebrow">How it works</p>
-            <h2 id="showcase-title">Every part of the conversation, in view.</h2>
-            <p className="showcase-lede">One clear path from setup to learning. Scroll through the workspace, or pick an area.</p>
+            <h2 id="showcase-title">Set up, test, and review in one workspace.</h2>
+            <p className="showcase-lede">Configure an agent, try it in a live session, and review the saved conversation. Scroll through the workspace, or pick an area.</p>
             <div className="showcase-tabs" role="tablist" aria-label="Workspace areas" aria-orientation="vertical" onKeyDown={onKeyDown} style={{ "--active": active } as CSSProperties}>
               <span className="showcase-rail" aria-hidden="true"><span className="showcase-rail-fill" ref={progressRef} /></span>
               <span className="showcase-indicator" aria-hidden="true" />

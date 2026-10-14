@@ -81,6 +81,10 @@ pinned) → data (dark) → interactive (light) → screens (dark) → close (li
 
 - Header menu is native `<details>`; on coarse pointers every interactive target is ≥ 44 px.
 - No pin, no parallax, no marquee, no SplitText, no grain or grid; ambient loops are off below 900 px.
+- **Plain on phones (≤ 720 px):** no orbit tags (EN / RU / Illustrative), orbit rings or arrow glyphs; section labels are
+  sentence-case sans instead of tracked mono capitals; capability rows lose their numbers and arrows; stats become a
+  number + label list; the primary hero button is full width. Copy is shared with desktop and kept literal: say what the
+  product does, no slogans.
 - Product windows crop rather than shrink: the showcase sidebar becomes a 52 px icon rail, the languages
   column and duplicate chips are dropped; text stays ≥ 11px.
 
