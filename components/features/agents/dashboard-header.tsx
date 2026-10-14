@@ -8,7 +8,12 @@ import { OPEN_PALETTE_EVENT } from "./command-palette";
 
 const links = [
   { href: "/agents", label: "Agents" },
+  { href: "/voices", label: "Voices" },
   { href: "/conversations", label: "Conversations" },
+  { href: "/campaigns", label: "Campaigns" },
+  { href: "/knowledge", label: "Knowledge" },
+  { href: "/tools", label: "Tools" },
+  { href: "/analytics", label: "Analytics" },
 ];
 
 export function DashboardHeader() {

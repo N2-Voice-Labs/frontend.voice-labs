@@ -39,6 +39,9 @@
 - Tip when adding workspace UI: use `var(--surface)`, `var(--line)`, `var(--ink)` where possible; they flip
   automatically. Hardcoded colours need an override in `dashboard-dark.css`.
 
+## Voices, campaigns, tools, knowledge, analytics
+See `docs/workspace-features.md` for the page map, the Platform routes behind each page, and the "Coming soon" switches.
+
 ## Network background
 - `components/features/network/network-background.tsx`: a fixed canvas (2D API, no library) of sparse nodes and
   faint lines behind the workspace. Modes: `idle` (nodes breathe), `active` (+ slow waves, cursor connections),

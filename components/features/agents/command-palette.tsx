@@ -11,7 +11,14 @@ type Item = { id: string; label: string; hint: string; group: string; href: stri
 const goTo: Item[] = [
   { id: "new", label: "New agent", hint: "Create", group: "Go to", href: "/agents/new" },
   { id: "agents", label: "Agents", hint: "Page", group: "Go to", href: "/agents" },
+  { id: "voices", label: "Voices", hint: "Page", group: "Go to", href: "/voices" },
+  { id: "clone", label: "Clone a voice", hint: "Create", group: "Go to", href: "/voices/clone" },
+  { id: "design", label: "Design a voice", hint: "Create", group: "Go to", href: "/voices/design" },
   { id: "conversations", label: "Conversations", hint: "Page", group: "Go to", href: "/conversations" },
+  { id: "campaigns", label: "Campaigns", hint: "Page", group: "Go to", href: "/campaigns" },
+  { id: "knowledge", label: "Knowledge", hint: "Page", group: "Go to", href: "/knowledge" },
+  { id: "tools", label: "Tools", hint: "Page", group: "Go to", href: "/tools" },
+  { id: "analytics", label: "Analytics", hint: "Page", group: "Go to", href: "/analytics" },
   { id: "site", label: "Home", hint: "Public site", group: "Go to", href: "/" },
 ];
 

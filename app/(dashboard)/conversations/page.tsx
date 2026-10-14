@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { AgentOrb } from "@/components/features/agents/agent-orb";
+import { Badge } from "@/components/features/workspace/ui";
+import { channelLabel, outcomeLabel, outcomeTone } from "@/lib/outcomes";
 import { agentHue, relativeTime } from "@/lib/agent-view";
 import { getAgents, getConversations, type Conversation } from "@/lib/platform";
 
@@ -18,6 +20,7 @@ export default function Conversations() {
   const [agentNames, setAgentNames] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [outcomeFilter, setOutcomeFilter] = useState("all");
 
   const refresh = useCallback(async () => {
     try {
@@ -47,6 +50,8 @@ export default function Conversations() {
   }, []);
 
   const now = Date.now();
+  const outcomes = [...new Set(conversations.map((item) => item.outcome).filter((value): value is string => Boolean(value)))];
+  const shown = outcomeFilter === "all" ? conversations : conversations.filter((item) => item.outcome === outcomeFilter);
   return (
     <main className="page-shell dash-main">
       <Link className="dash-back" href="/agents">← Agents</Link>
@@ -58,6 +63,10 @@ export default function Conversations() {
         </div>
       </div>
       {error && <p role="alert">Could not refresh conversations: {error}</p>}
+      {outcomes.length > 0 && <div className="ws-toolbar" role="group" aria-label="Filter by outcome">
+        <button className={outcomeFilter === "all" ? "chip is-active" : "chip"} data-bare type="button" aria-pressed={outcomeFilter === "all"} onClick={() => setOutcomeFilter("all")}>All outcomes</button>
+        {outcomes.map((value) => <button key={value} className={outcomeFilter === value ? "chip is-active" : "chip"} data-bare type="button" aria-pressed={outcomeFilter === value} onClick={() => setOutcomeFilter(value)}>{outcomeLabel(value)} <b>{conversations.filter((item) => item.outcome === value).length}</b></button>)}
+      </div>}
       {!loaded ? <p>Loading conversations…</p> : conversations.length === 0 && error ? null : conversations.length === 0 ? (
         <div className="dash-empty">
           <AgentOrb hue={20} size={64} />
@@ -66,7 +75,7 @@ export default function Conversations() {
         </div>
       ) : (
         <ul className="convo-list">
-          {conversations.map((conversation, index) => {
+          {shown.map((conversation, index) => {
             const length = duration(conversation.started_at, conversation.ended_at);
             return (
               <li className="convo-row" key={conversation.id} style={{ "--i": Math.min(index, 12) } as CSSProperties}>
@@ -79,6 +88,8 @@ export default function Conversations() {
                     {length && <span> · {length}</span>}
                   </span>
                 </div>
+                {conversation.outcome && <Badge tone={outcomeTone(conversation.outcome)}>{outcomeLabel(conversation.outcome)}</Badge>}
+                {conversation.channel && conversation.channel !== "web" && <Badge>{channelLabel(conversation.channel)}</Badge>}
                 <span className={`convo-status is-${conversation.status}`}>{conversation.status}</span>
               </li>
             );

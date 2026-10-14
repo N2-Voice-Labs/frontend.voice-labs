@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { AgentOrb } from "@/components/features/agents/agent-orb";
 import { agentHue, languageLabel } from "@/lib/agent-view";
+import { languageName } from "@/lib/languages";
 import { getProviders, saveAgent, type Agent, type ProviderConfig } from "@/lib/platform";
+import { getVoices, type Voice } from "@/lib/voices";
 
 type AgentFormProps = {
   initialAgent?: Agent;
@@ -30,6 +33,9 @@ const runtimeProviders: Record<ProviderConfig["kind"], string[]> = {
 export function AgentForm({ initialAgent, onSaved }: AgentFormProps) {
   const [providers, setProviders] = useState<ProviderConfig[]>([]);
   const [providerError, setProviderError] = useState("");
+  const [voices, setVoices] = useState<Voice[]>([]);
+  const [voicesError, setVoicesError] = useState(false);
+  const [voiceProfileId, setVoiceProfileId] = useState(initialAgent?.voice_profile_id ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -52,6 +58,17 @@ export function AgentForm({ initialAgent, onSaved }: AgentFormProps) {
       if (active) setProviders(items);
     }).catch((cause: unknown) => {
       if (active) setProviderError(cause instanceof Error ? cause.message : "Could not load providers");
+    });
+    return () => { active = false; };
+  }, []);
+
+  // The voice picker lists voices that are ready; a failure only hides the picker's choices.
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => getVoices({ status: "ready" })).then((items) => {
+      if (active) setVoices(items);
+    }).catch(() => {
+      if (active) setVoicesError(true);
     });
     return () => { active = false; };
   }, []);
@@ -104,6 +121,8 @@ export function AgentForm({ initialAgent, onSaved }: AgentFormProps) {
       enabled_languages: languages,
       voice_id: String(form.get("voice_id") ?? "").trim() || null,
     };
+    const selectedVoice = voiceProfileId || null;
+    if (initialAgent ? selectedVoice !== (initialAgent.voice_profile_id ?? null) : selectedVoice) data.voice_profile_id = selectedVoice;
     for (const kind of ["stt", "llm", "tts"] as const) {
       const field = `${kind}_provider_id` as const;
       const selected = providerIds[kind] || null;
@@ -162,6 +181,16 @@ export function AgentForm({ initialAgent, onSaved }: AgentFormProps) {
         <fieldset className="chip-fieldset"><legend>Supported languages</legend>
           {languageOptions.map(({ id, label }) => <label className="check-option" key={id}><input type="checkbox" checked={languages.includes(id)} onChange={() => toggleLanguage(id)} />{label}</label>)}
         </fieldset>
+        <div className="ws-voice-pick">
+          <label>Voice
+            <select aria-label="Voice" name="voice_profile_id" value={voiceProfileId} onChange={(event) => { setVoiceProfileId(event.target.value); setDirty(true); }}>
+              <option value="">Use the default voice</option>
+              {voiceProfileId && !voices.some((voice) => voice.id === voiceProfileId) && <option value={voiceProfileId} disabled>Current voice (not ready)</option>}
+              {voices.map((voice) => <option key={voice.id} value={voice.id}>{voice.name} · {voice.languages.map(languageName).join(", ")}</option>)}
+            </select>
+          </label>
+          <span className="field-hint">{voicesError ? "Voices are unavailable right now. Other settings can still be saved." : voices.length === 0 ? "No ready voices yet." : "Shared voices from your library."} <Link href="/voices">Manage voices</Link></span>
+        </div>
         <label>Voice ID<input name="voice_id" defaultValue={initialAgent?.voice_id ?? ""} /></label>
       </section>
       <section className="form-section">
@@ -197,6 +226,7 @@ export function AgentForm({ initialAgent, onSaved }: AgentFormProps) {
           <div><dt>Speech</dt><dd data-custom={Boolean(providerIds.stt)}>{providerName("stt")}</dd></div>
           <div><dt>Language</dt><dd data-custom={Boolean(providerIds.llm)}>{providerName("llm")}</dd></div>
           <div><dt>Voice</dt><dd data-custom={Boolean(providerIds.tts)}>{providerName("tts")}</dd></div>
+          <div><dt>Speaker</dt><dd data-custom={Boolean(voiceProfileId)}>{voices.find((voice) => voice.id === voiceProfileId)?.name ?? (voiceProfileId ? "Selected voice" : "Default voice")}</dd></div>
         </dl>
         <p className="form-preview-prompt">{promptWords === 0 ? "No system prompt yet" : `${promptWords} words · ${draft.prompt.length} characters of instructions`}</p>
       </div>

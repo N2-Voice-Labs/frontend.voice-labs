@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { LanguageTags } from "@/components/features/conversations/language-tags";
+import { OutcomePanel } from "@/components/features/conversations/outcome-panel";
 import { isMixedScript, ScriptText } from "@/components/features/conversations/script-text";
 import {
   getConversation,
@@ -101,6 +103,7 @@ export default function ConversationDetail() {
           {conversation.ended_at && <p>Ended: {new Date(conversation.ended_at).toLocaleString()}</p>}
         </section>
       )}
+      {isCurrentConversationLoaded && conversation && <OutcomePanel key={`${conversation.id}-${conversation.outcome_recorded_at ?? ""}`} conversation={conversation} onSaved={setConversation} />}
       {isCurrentConversationLoaded && <section className="panel convo-panel convo-activity" aria-label="Voice session activity" aria-live="polite">
         <h2>Voice session activity</h2>
         {activityEvents.map((event) => {
@@ -139,6 +142,7 @@ export default function ConversationDetail() {
                 <span className="transcript-content"><ScriptText text={message.content} /></span>
               </p>
               <p className="chat-foot">
+                <LanguageTags primary={message.primary_language} detected={message.detected_languages} />
                 {message.detected_languages.length > 0 && <small> · Detected: {message.detected_languages.join(", ")}</small>}
                 <small> · {new Date(message.created_at).toLocaleString()}</small>
               </p>

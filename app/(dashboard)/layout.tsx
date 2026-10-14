@@ -1,5 +1,6 @@
 import "./dashboard.css";
 import "./dashboard-dark.css";
+import "./workspace.css";
 import { CommandPalette } from "@/components/features/agents/command-palette";
 import { DashboardHeader } from "@/components/features/agents/dashboard-header";
 import { DashboardBackground } from "@/components/features/network/network-background";

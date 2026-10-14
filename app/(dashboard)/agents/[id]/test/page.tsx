@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Room, RoomEvent, Track } from "livekit-client";
 import { useParams } from "next/navigation";
+import { LatencyPanel } from "@/components/features/playground/latency-panel";
 import { PipelineCheck } from "@/components/features/playground/pipeline-check";
 import { deriveStageMode, stageLabel, useStagePreview, VoiceStage } from "@/components/features/playground/voice-stage";
 import { agentHue } from "@/lib/agent-view";
+import { latestLatency, type LatencyStage } from "@/lib/latency";
 import {
   createVoiceSession,
   endVoiceSession,
@@ -48,6 +50,7 @@ export default function VoicePlayground() {
   const [sessionId, setSessionId] = useState("");
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [transcriptError, setTranscriptError] = useState("");
+  const [latency, setLatency] = useState<Partial<Record<LatencyStage, number>>>({});
   const roomRef = useRef<Room | null>(null);
   const activeSessionIdRef = useRef<string | null>(null);
   const runtimeRetryAtRef = useRef(0);
@@ -84,6 +87,7 @@ export default function VoicePlayground() {
         setRuntimeStatus(runtimeResult.value.session_status);
       }
       if (runtimeResult.status === "fulfilled") {
+        setLatency(latestLatency(runtimeResult.value.events));
         const latestActivity = [...runtimeResult.value.events].reverse().find(
           (event) => event.event_type in CONVERSATION_ACTIVITY_LABELS,
         );
@@ -414,6 +418,7 @@ export default function VoicePlayground() {
             microphoneActive={microphoneActive}
             agentSpeaking={agentSpeaking}
           />
+          <LatencyPanel values={latency} />
           <section className="play-diag" aria-labelledby="diag-title">
             <h2 id="diag-title">Diagnostics</h2>
             <p role="status">Connection: {phase}{statusMessage ? ` · ${statusMessage}` : ""}</p>

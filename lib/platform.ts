@@ -19,6 +19,8 @@ export type Agent = {
   llm_provider_id: string | null;
   tts_provider_id: string | null;
   voice_id: string | null;
+  /** The shared voice from the Voice library (`/voices`) this agent speaks with. */
+  voice_profile_id?: string | null;
   status: string;
 };
 
@@ -29,12 +31,24 @@ export type ProviderConfig = {
   enabled: boolean;
 };
 
+/** A recorded result of a call. The Platform accepts exactly these values (`OUTCOMES`). */
+export type ConversationAction = { type?: string; reason?: string | null; target?: string | null; [key: string]: unknown };
+
 export type Conversation = {
   id: string;
   agent_id: string;
   status: string;
   started_at: string;
   ended_at: string | null;
+  // Added by the outcomes work; optional so an older Platform response still type-checks.
+  deployment_id?: string | null;
+  channel?: string | null;
+  outcome?: string | null;
+  summary?: string | null;
+  intent?: string | null;
+  actions?: ConversationAction[];
+  outcome_recorded_at?: string | null;
+  metadata?: Record<string, unknown>;
 };
 
 export type ConversationMessage = {
@@ -60,13 +74,16 @@ export type ConversationRuntimeState = {
   events: ConversationRuntimeEvent[];
 };
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+/** The one place that talks to the Platform. Every other `lib/*` module builds on it. */
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${platformUrl}${path}`, { ...init, cache: "no-store" });
   if (!response.ok) {
     let detail = `Platform returned ${response.status}`;
     try {
       const body = await response.json();
       if (typeof body.detail === "string") detail = body.detail;
+      // FastAPI validation errors arrive as a list of { loc, msg }.
+      else if (Array.isArray(body.detail)) detail = body.detail.map((item: { loc?: unknown[]; msg?: string }) => [item.loc?.filter((part) => part !== "body").join("."), item.msg].filter(Boolean).join(": ")).join("; ") || detail;
     } catch {
       // Keep the status message when the server did not return JSON.
     }
@@ -101,3 +118,11 @@ export async function createVoiceSession(agentId: string): Promise<VoiceSession>
     body: JSON.stringify({ agent_id: agentId }),
   });
 }
+
+/** Records how a call ended. `outcome` must be one of `OUTCOMES` (lib/outcomes.ts). */
+export const setConversationOutcome = (id: string, body: { outcome: string; summary?: string | null; intent?: string | null; actions?: ConversationAction[] | null }) =>
+  request<Conversation>(`/conversations/${encodeURIComponent(id)}/outcome`, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });

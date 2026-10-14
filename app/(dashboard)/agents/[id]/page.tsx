@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AgentKnowledgePanel } from "@/components/features/agents/agent-knowledge-panel";
 import { AgentOrb } from "@/components/features/agents/agent-orb";
+import { AgentToolsPanel } from "@/components/features/agents/agent-tools-panel";
+import { DeploymentsPanel } from "@/components/features/agents/deployments-panel";
 import { agentHue, isLiveStatus, languageLabel, relativeTime, statusLabel } from "@/lib/agent-view";
 import { getAgent, getConversations, type Conversation } from "@/lib/platform";
+import { getVoice } from "@/lib/voices";
 
 export default async function AgentDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -10,6 +14,8 @@ export default async function AgentDetail({ params }: { params: Promise<{ id: st
     const agent = await getAgent(id);
     const now = Date.now();
     const conversations: Conversation[] | null = await getConversations().then((all) => all.filter((item) => item.agent_id === id).toSorted((a, b) => Date.parse(b.started_at) - Date.parse(a.started_at))).catch(() => null);
+    // The shared voice is best-effort: the page still renders if the voice cannot be loaded.
+    const voice = agent.voice_profile_id ? await getVoice(agent.voice_profile_id).catch(() => null) : null;
     const providers = [
       { label: "Speech-to-text", short: "STT", value: agent.stt_provider_id },
       { label: "Language model", short: "LLM", value: agent.llm_provider_id },
@@ -44,7 +50,8 @@ export default async function AgentDetail({ params }: { params: Promise<{ id: st
             {providers.map((provider) => (
               <li key={provider.short}><strong>{provider.short}:</strong> <span>{provider.value ?? "Runtime default"}</span><i className={provider.value ? "is-custom" : ""} title={provider.value ? `Custom ${provider.label.toLowerCase()} provider` : `Runtime default for ${provider.label.toLowerCase()}`} /></li>
             ))}
-            {agent.voice_id && <li><strong>Voice:</strong> <span>{agent.voice_id}</span></li>}
+            <li><strong>Voice:</strong> <span>{voice ? <Link href="/voices">{voice.name}</Link> : agent.voice_profile_id ? "Selected voice" : "Default voice"}</span></li>
+            {agent.voice_id && <li><strong>Voice ID:</strong> <span>{agent.voice_id}</span></li>}
           </ul>
         </section>
 
@@ -56,6 +63,10 @@ export default async function AgentDetail({ params }: { params: Promise<{ id: st
               <li key={item.id}><Link href={`/conversations/${item.id}`}>Conversation {item.id.slice(0, 8)}</Link><span>{item.status} · {relativeTime(item.started_at, now)}</span></li>
             ))}</ul>}
         </section>
+
+        <DeploymentsPanel agentId={id} />
+        <AgentToolsPanel agentId={id} />
+        <AgentKnowledgePanel agentId={id} />
 
         <section className="panel detail-panel detail-wide" aria-labelledby="prompt-title">
           <h2 id="prompt-title">System prompt</h2>

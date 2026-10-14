@@ -12,6 +12,10 @@ html[data-vl-theme="dark"] .dash-root {
   --paper: #121516;
   --surface: #1a1e1f;
   --accent-dark: #ff6a55;
+  --accent-text: #ff6a55;
+  --ink-2: #aeb1aa;
+  --line-strong: #3a4142;
+  --paper-2: #1f2425;
   --focus: #8f9bff;
 }
 
