@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { canAnimate, EASE_OUT, gsap } from "./motion/gsap";
 
 const examples = [
   {
@@ -22,6 +23,19 @@ const examples = [
 export function VoicePreview() {
   const [selected, setSelected] = useState(0);
   const example = examples[selected];
+  const lines = useRef<HTMLDivElement>(null);
+  const waves = useRef<HTMLDivElement>(null);
+  const mounted = useRef(false);
+
+  // Cross-fade the conversation when the example changes (not on first paint).
+  useLayoutEffect(() => {
+    if (!mounted.current) { mounted.current = true; return; }
+    if (!canAnimate() || !lines.current) return;
+    const tween = gsap.fromTo(lines.current.children, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, ease: EASE_OUT, clearProps: "opacity,transform" });
+    const bars = waves.current?.children;
+    const wave = bars ? gsap.fromTo(bars, { scaleY: 0.25 }, { scaleY: 1, duration: 0.6, stagger: 0.012, ease: EASE_OUT, clearProps: "transform" }) : null;
+    return () => { tween.revert(); wave?.revert(); };
+  }, [selected]);
 
   return (
     <section className="preview-card" aria-label="Illustrative voice conversation preview">
@@ -34,13 +48,13 @@ export function VoicePreview() {
           <span className="preview-index">0{selected + 1}</span>
           <span>{example.language}</span>
         </div>
-        <div className="conversation-lines" aria-live="polite">
+        <div className="conversation-lines" aria-live="polite" ref={lines}>
           <p className="speaker-label">YOU <span>· 00:04</span></p>
           <p className="speech user-speech">{example.user}</p>
           <p className="speaker-label agent-speaker">VOICE LABS <span>· 00:06</span></p>
           <p className="speech agent-speech">{example.agent}</p>
         </div>
-        <div className="preview-wave" aria-hidden="true">
+        <div className="preview-wave" aria-hidden="true" ref={waves}>
           {[14, 24, 18, 37, 27, 48, 32, 58, 39, 25, 45, 30, 52, 22, 34, 18, 41, 26, 16, 33, 20].map((height, index) => (
             <span key={index} style={{ "--bar-height": `${height}px` } as React.CSSProperties} />
           ))}

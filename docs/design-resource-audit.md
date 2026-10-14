@@ -16,7 +16,7 @@ Reviewed 13 October 2026. The seven repositories below are the entries shown in 
 
 ## Skills reviewed
 
-- [Taste Skill](https://github.com/Leonxlnx/taste-skill) is MIT-licensed and was installed locally into `.agents/skills/`. The `redesign-existing-projects` audit-first guidance and `gpt-taste` visual hierarchy guidance were reviewed. Requested skills installed successfully; no skill code is shipped to users. The latter recommends GSAP, which is not used because this project explicitly prefers Anime.js. Its imposed layout, randomization, and decoration rules were also not followed where they conflicted with the existing app or product requirements.
+- [Taste Skill](https://github.com/Leonxlnx/taste-skill) is MIT-licensed and was installed locally into `.agents/skills/`. The `redesign-existing-projects` audit-first guidance and `gpt-taste` visual hierarchy guidance were reviewed. Requested skills installed successfully; no skill code is shipped to users. The latter recommends GSAP. It was originally skipped in favour of Anime.js; as of 14 October 2026 GSAP + ScrollTrigger is used for the marketing page's scroll-scrubbed and pinned choreography (see `docs/landing-motion-spec.md`), because Anime.js could not express pin + scrub + progress cleanly. Its imposed layout, randomization, and decoration rules were still not followed where they conflicted with the existing app or product requirements.
 - Anime.js v4 [React integration](https://animejs.com/documentation/getting-started/using-with-react) documents `createScope({ root })`, effect setup, and `scope.revert()` cleanup. Its [animation](https://animejs.com/documentation/animation/), [timeline](https://animejs.com/documentation/timeline/), [SVG helpers](https://animejs.com/documentation/svg/), and [`onScroll` / ScrollObserver](https://animejs.com/documentation/events/onscroll/scrollobserver-properties) references were reviewed. Animation APIs were applied to the hero orb only; timeline, SVG, and scroll helpers are not needed in this milestone.
 
 ## Voice Labs design specification
@@ -30,7 +30,7 @@ The direction is an **editorial signal studio**: warm paper and ink create a cal
 | Layout | Responsive max-width 1320px marketing container; asymmetric copy/art hero; 4px base spacing unit with larger section rhythm; product pages retain their existing separate shell. |
 | Surfaces | Warm, low-contrast paper layers; fine neutral borders; small control radii (3px) and slightly softer preview surfaces (5px); use shadows only to establish depth. |
 | Interaction | Visible 3px focus outline, clear hover/pressed CTA states, real route/anchor destinations, native disclosure menu on mobile. |
-| Motion | CSS for short entrance and button feedback; Anime.js v4 for scoped orbital and waveform motion; no scroll-jacking. `prefers-reduced-motion` disables nonessential movement. |
+| Motion | CSS for entrances, hover and ambient loops; Anime.js v4 for the hero orb; GSAP + ScrollTrigger + Lenis for reveals, the pinned workspace showcase, parallax and counters (marketing page only). Pinning is desktop-only and follows scroll one-to-one; `prefers-reduced-motion` disables Lenis, scrubbing, loops and the pointer light. Full spec: `docs/landing-motion-spec.md`. |
 | Responsive | Existing 1050px, 720px, and 390px breakpoints; mobile uses a native disclosure menu and stacked hero rather than a compressed desktop split. |
 
 ## Reference use

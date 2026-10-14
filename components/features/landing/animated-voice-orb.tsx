@@ -24,26 +24,27 @@ export function AnimatedVoiceOrb() {
         scale: [0.88, 1],
         translateY: [18, 0],
         duration: 900,
+        delay: 250,
         ease: "outExpo",
       });
       animate(".art-orbit", {
         opacity: [0, 1],
         scale: [0.8, 1],
-        delay: stagger(130),
+        delay: stagger(130, { start: 250 }),
         duration: 1100,
         ease: "outExpo",
       });
       animate(".orbit-node", {
         opacity: [0, 1],
         scale: [0.25, 1],
-        delay: stagger(90),
+        delay: stagger(90, { start: 400 }),
         duration: 700,
         ease: "outBack",
       });
       animate(".art-core", {
         translateY: [0, -7],
         duration: 3600,
-        delay: 900,
+        delay: 1150,
         ease: "inOutSine",
         alternate: true,
         loop: true,
@@ -100,6 +101,7 @@ export function AnimatedVoiceOrb() {
       className="hero-art"
       ref={root}
       role="img"
+      data-parallax-exit="56"
       aria-label="Illustrative voice signal, not a live session"
       onPointerMove={moveArtwork}
       onPointerLeave={resetArtwork}
