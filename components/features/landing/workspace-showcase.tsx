@@ -7,12 +7,21 @@ import { SectionAmbience } from "./motion/ambient-background";
 import { scrollToY } from "./motion/scroll-controller";
 
 const views = [
-  { id: "agents", number: "01", tab: "Configure", area: "Agents", copy: "Set purpose, instructions, languages, and voice for each agent." },
-  { id: "playground", number: "02", tab: "Test live", area: "Playground", copy: "Open a session, speak naturally, and watch the turns arrive." },
-  { id: "conversations", number: "03", tab: "Review", area: "Conversations", copy: "Return to transcripts and runtime events to improve the next call." },
+  { id: "agents", number: "01", tab: "Configure", area: "Agents", copy: "Set purpose, instructions, languages, and voice for each agent, in one focused workspace." },
+  { id: "playground", number: "02", tab: "Test live", area: "Playground", copy: "Open a live session, speak naturally, and see what the runtime hears." },
+  { id: "conversations", number: "03", tab: "Review", area: "Conversations", copy: "Learn from every turn: review saved transcripts and runtime events to improve the next call." },
 ] as const;
 
-const glyphs = ["◉", "⌁", "▤"];
+const icons = [
+  <><circle cx="8" cy="5.5" r="2.5" /><path d="M3 13.5c.6-2.4 2.6-3.5 5-3.5s4.4 1.1 5 3.5" /></>,
+  <path d="M3 6.5v3M6 3.5v9M9 5.5v5M12 4v8" />,
+  <path d="M2.5 3.5h11v7.5H8l-3 2.2V11H2.5z" />,
+];
+
+function NavIcon({ index }: Readonly<{ index: number }>) {
+  return <svg className="nav-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icons[index]}</svg>;
+}
+
 const playgroundBars = [16, 28, 20, 40, 26, 48, 30, 54, 34, 24, 44, 28, 50, 22, 36, 18, 42, 26, 16];
 
 /** Pinned on wide screens: scroll progress drives the dashboard. Elsewhere it is plain tabs. */
@@ -92,7 +101,7 @@ export function WorkspaceShowcase() {
         <SectionAmbience kind="showcase" />
         <div className="section-wrap showcase-grid">
           <div className="showcase-copy">
-            <p className="eyebrow">04 / YOUR VOICE WORKSPACE</p>
+            <p className="eyebrow">How it works</p>
             <h2 id="showcase-title">Every part of the conversation, in view.</h2>
             <p className="showcase-lede">One clear path from setup to learning. Scroll through the workspace, or pick an area.</p>
             <div className="showcase-tabs" role="tablist" aria-label="Workspace areas" aria-orientation="vertical" onKeyDown={onKeyDown} style={{ "--active": active } as CSSProperties}>
@@ -126,11 +135,11 @@ export function WorkspaceShowcase() {
               <div className="showcase-window-inner" ref={innerRef}>
                 <div className="workspace-sidebar" aria-hidden="true">
                   <span className="mini-brand">v<span>.</span></span>
-                  {views.map((view, index) => <span className={active === index ? "mini-nav active" : "mini-nav"} key={view.id}>{glyphs[index]} <i>{view.area}</i></span>)}
+                  {views.map((view, index) => <span className={active === index ? "mini-nav active" : "mini-nav"} key={view.id}><NavIcon index={index} /> <i>{view.area}</i></span>)}
                   <span className="mini-avatar">VL</span>
                 </div>
                 <div className="showcase-panels">
-                  <div className="workspace-top"><span>WORKSPACE / {views[active].area.toUpperCase()}</span><span>● ILLUSTRATIVE PREVIEW</span></div>
+                  <div className="workspace-toolbar"><span className="crumbs"><span className="crumb-root">Workspace <i>/</i> </span><b>{views[active].area}</b></span><span className="toolbar-chip">Illustrative preview</span></div>
                   <div className="showcase-panel-stack">
                     {views.map((view, index) => (
                       <div
@@ -145,7 +154,7 @@ export function WorkspaceShowcase() {
                       </div>
                     ))}
                   </div>
-                  <div className="workspace-footnote">Interface preview · capabilities vary by configuration</div>
+                  <div className="workspace-footnote">Interface preview. Capabilities vary by configuration.</div>
                 </div>
               </div>
             </div>
@@ -157,29 +166,57 @@ export function WorkspaceShowcase() {
 }
 
 function AgentsPanel() {
+  const agents = [
+    { name: "Concierge", note: "Travel and stays", langs: "English · Русский", status: "Ready", glyph: "◌", tone: "" },
+    { name: "Front desk", note: "Appointments", langs: "English · Русский", status: "Ready", glyph: "◌", tone: "" },
+    { name: "Studio guide", note: "Product walkthrough", langs: "English", status: "Draft", glyph: "◉", tone: "avatar-coral" },
+  ];
   return <>
-    <div className="workspace-title"><div><small>VOICE AGENTS</small><strong>Your agents</strong></div><span className="mini-create">+ New agent</span></div>
-    <div className="workspace-agent"><span className="agent-avatar">◌</span><div><strong>Concierge</strong><small>English · Русский</small></div><span className="agent-status"><i /> Ready</span><b>···</b></div>
-    <div className="workspace-agent"><span className="agent-avatar avatar-coral">◉</span><div><strong>Studio guide</strong><small>English</small></div><span className="agent-status status-draft"><i /> Draft</span><b>···</b></div>
+    <div className="workspace-title"><div><small>Voice agents</small><strong>Your agents</strong></div><span className="mini-create">+ New agent</span></div>
+    <div className="agent-table">
+      <div className="agent-table-head"><span>Agent</span><span>Languages</span><span>Status</span></div>
+      {agents.map((agent) => (
+        <div className="workspace-agent" key={agent.name}>
+          <span className={`agent-avatar ${agent.tone}`}>{agent.glyph}</span>
+          <div><strong>{agent.name}</strong><small>{agent.note}</small></div>
+          <span className="agent-langs">{agent.langs}</span>
+          <span className={agent.status === "Draft" ? "agent-status status-draft" : "agent-status"}><i /> {agent.status}</span>
+        </div>
+      ))}
+    </div>
     <div className="panel-chips"><span>Speech</span><span>Language</span><span>Voice</span><em>providers per agent</em></div>
   </>;
 }
 
 function PlaygroundPanel() {
   return <>
-    <div className="workspace-title"><div><small>VOICE PLAYGROUND</small><strong>Concierge</strong></div><span className="live-chip"><i /> Illustrative session</span></div>
+    <div className="workspace-title"><div><small>Voice playground</small><strong>Concierge</strong></div><span className="live-chip"><i /> Illustrative session</span></div>
     <div className="playground-wave">{playgroundBars.map((height, index) => <span key={index} style={{ "--bar-height": `${height}px`, "--bar-index": index } as CSSProperties} />)}</div>
     <div className="playground-lines">
-      <p><small>YOU · 00:04</small>Мне нужно узнать what documents I need for my visa.</p>
-      <p className="is-agent"><small>AGENT · 00:06</small>Конечно. I can walk you through the requirements.</p>
+      <p><small>You · 00:04</small>Мне нужно узнать what documents I need for my visa.</p>
+      <p className="is-agent"><small>Agent · 00:06</small>Конечно. I can walk you through the requirements.</p>
     </div>
+    <div className="playground-bar"><span className="playground-mic" aria-hidden="true" /><span className="playground-timer">00:09</span><span className="playground-note">Listening for the next turn</span><span className="mini-create mini-ghost">End session</span></div>
   </>;
 }
 
 function ConversationsPanel() {
+  const sessions = [
+    { title: "Visa documents question", meta: "EN + RU · 4 turns", selected: true },
+    { title: "Reschedule an appointment", meta: "English · 6 turns", selected: false },
+    { title: "Hotel late check-in", meta: "EN + RU · 5 turns", selected: false },
+  ];
   return <>
-    <div className="workspace-title"><div><small>CONVERSATIONS</small><strong>Saved sessions</strong></div><span className="mini-create mini-ghost">Transcript</span></div>
-    <div className="workspace-agent"><span className="agent-avatar">▤</span><div><strong>Visa documents question</strong><small>EN + RU · 4 turns</small></div><span className="agent-status"><i /> Saved</span><b>···</b></div>
+    <div className="workspace-title"><div><small>Conversations</small><strong>Saved sessions</strong></div><span className="mini-create mini-ghost">Open transcript</span></div>
+    <div className="agent-table">
+      {sessions.map((session) => (
+        <div className={session.selected ? "workspace-agent is-selected" : "workspace-agent"} key={session.title}>
+          <span className="agent-avatar">▤</span>
+          <div><strong>{session.title}</strong><small>{session.meta}</small></div>
+          <span className="agent-status"><i /> Saved</span>
+        </div>
+      ))}
+    </div>
     <ol className="event-list">
       <li><time>00:04</time><span>Heard speech in two languages</span></li>
       <li><time>00:06</time><span>Agent replied in the caller’s mix</span></li>

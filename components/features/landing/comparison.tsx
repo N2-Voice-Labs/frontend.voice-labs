@@ -40,7 +40,7 @@ export function Comparison() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <div className="compare" data-reveal-group>
+    <div className="compare">
       <div className="compare-head" aria-hidden="true">
         <span />
         <span>Scripted voice menus</span>
@@ -51,7 +51,7 @@ export function Comparison() {
         {rows.map((row, index) => {
           const expanded = open === index;
           return (
-            <li className={expanded ? "compare-row is-open" : "compare-row"} key={row.topic} data-reveal-item>
+            <li className={expanded ? "compare-row is-open" : "compare-row"} key={row.topic}>
               <h3>
                 <button
                   className="compare-button"

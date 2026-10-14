@@ -20,28 +20,28 @@ const bars = [10, 22, 15, 30, 20, 36, 24, 40, 28, 18, 32, 14];
 function Visual({ kind }: Readonly<{ kind: Shot["kind"] }>) {
   switch (kind) {
     case "form":
-      return <div className="shot-visual"><i className="shot-field w60" /><i className="shot-field" /><i className="shot-area" /><i className="shot-pill" /></div>;
+      return <div className="shot-visual"><span className="shot-field">Concierge</span><span className="shot-field">English, Русский</span><span className="shot-area">Greet warmly. Ask one question at a time.</span><span className="shot-pill">Save agent</span></div>;
     case "voice":
-      return <div className="shot-visual"><div className="shot-row"><b>EN</b><i className="shot-field w60" /></div><div className="shot-row"><b>RU</b><i className="shot-field w40" /></div><div className="shot-wave">{bars.map((h, n) => <i key={n} style={{ height: h }} />)}</div></div>;
+      return <div className="shot-visual"><div className="shot-row"><b>EN</b><span className="shot-field">Warm, unhurried</span></div><div className="shot-row"><b>RU</b><span className="shot-field" lang="ru">Мягкий, спокойный</span></div><div className="shot-wave">{bars.map((h, n) => <i key={n} style={{ height: h }} />)}</div></div>;
     case "providers":
-      return <div className="shot-visual">{["Speech", "Language", "Voice"].map((label) => <div className="shot-row" key={label}><b>{label}</b><i className="shot-field" /></div>)}</div>;
+      return <div className="shot-visual">{["Speech", "Language", "Voice"].map((label) => <div className="shot-row" key={label}><b>{label}</b><span className="shot-field">Runtime default</span></div>)}</div>;
     case "session":
-      return <div className="shot-visual"><div className="shot-wave tall">{bars.map((h, n) => <i key={n} style={{ height: h + 8 }} />)}</div><i className="shot-line w80" /><i className="shot-line w60" /><i className="shot-mic" /></div>;
+      return <div className="shot-visual"><div className="shot-wave tall">{bars.map((h, n) => <i key={n} style={{ height: h + 8 }} />)}</div><span className="shot-text">Мне нужно узнать what documents I need…</span><span className="shot-mic" role="presentation" /></div>;
     case "transcript":
-      return <div className="shot-visual"><i className="shot-bubble" /><i className="shot-bubble is-agent" /><i className="shot-bubble" /></div>;
+      return <div className="shot-visual"><span className="shot-bubble">Can you help me find a quieter time?</span><span className="shot-bubble is-agent">Absolutely. Would tomorrow morning work?</span></div>;
     case "events":
-      return <div className="shot-visual">{["00:04", "00:06", "00:09", "00:12"].map((time) => <div className="shot-row" key={time}><b>{time}</b><i className="shot-line" /></div>)}</div>;
+      return <div className="shot-visual">{[["00:04", "Heard two languages"], ["00:06", "Agent replied"], ["00:09", "Caller spoke over agent"]].map(([time, text]) => <div className="shot-row" key={time}><b>{time}</b><span className="shot-text">{text}</span></div>)}</div>;
     case "list":
-      return <div className="shot-visual">{[0, 1, 2].map((n) => <div className="shot-card" key={n}><i className="shot-dot" /><i className="shot-line w60" /></div>)}</div>;
+      return <div className="shot-visual">{["Visa documents", "Reschedule", "Late check-in"].map((title) => <div className="shot-card" key={title}><i className="shot-dot" /><span className="shot-text">{title}</span></div>)}</div>;
     default:
-      return <div className="shot-visual">{[0, 1].map((n) => <div className="shot-card" key={n}><i className="shot-avatar" /><i className="shot-line w40" /><i className="shot-pill small" /></div>)}</div>;
+      return <div className="shot-visual">{[["Concierge", "Ready"], ["Studio guide", "Draft"]].map(([name, status]) => <div className="shot-card" key={name}><i className="shot-avatar" /><span className="shot-text">{name}</span><span className="shot-status">{status}</span></div>)}</div>;
   }
 }
 
 function ShotCard({ shot, index }: Readonly<{ shot: Shot; index: number }>) {
   return (
     <figure className="shot">
-      <div className="shot-frame"><div className="shot-media"><div className="shot-chrome"><i /><i /><i /></div><Visual kind={shot.kind} /></div></div>
+      <div className="shot-frame"><div className="shot-media"><Visual kind={shot.kind} /></div></div>
       <figcaption><span>{String(index + 1).padStart(2, "0")}</span>{shot.title}<em>{shot.tag}</em></figcaption>
     </figure>
   );
@@ -54,7 +54,7 @@ export function ScreenshotGallery() {
   return (
     <div className="gallery" data-paused={paused}>
       <div className="gallery-controls">
-        <p>{shots.length} illustrative panels · hover to magnify</p>
+        <p>{shots.length} illustrative panels, not live data</p>
         <button className="gallery-toggle" data-bare type="button" aria-pressed={paused} onClick={() => setPaused((value) => !value)}>
           <span aria-hidden="true">{paused ? "▶" : "❚❚"}</span> {paused ? "Play motion" : "Pause motion"}
         </button>

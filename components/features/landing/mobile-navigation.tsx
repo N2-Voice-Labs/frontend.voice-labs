@@ -13,8 +13,8 @@ export function MobileNavigation() {
       <summary aria-label="Navigation menu">Menu <span aria-hidden="true">+</span></summary>
       <nav aria-label="Mobile navigation">
         <a href="#product" onClick={closeAfterNavigation}>Product</a>
-        <a href="#how-it-works" onClick={closeAfterNavigation}>How it works</a>
-        <a href="#platform" onClick={closeAfterNavigation}>Platform</a>
+        <a href="#platform" onClick={closeAfterNavigation}>How it works</a>
+        <a href="#compare" onClick={closeAfterNavigation}>Why Voice Labs</a>
         <Link href="/agents" onClick={closeAfterNavigation}>Platform access ↗</Link>
       </nav>
     </details>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { AgentForm } from "@/components/agent-form";
 import { Agent, getAgent } from "@/lib/platform";
@@ -19,7 +20,8 @@ export default function EditAgent() {
     return () => { active = false; };
   }, [id]);
 
-  return <main className="page-shell narrow-page">
+  return <main className="page-shell dash-main">
+    <Link className="dash-back" href={`/agents/${id}`}>← Back to agent</Link>
     <p className="eyebrow">Agents / Edit</p>
     <h1>Edit agent</h1>
     {!agent ? <p role={error ? "alert" : "status"}>{error || "Loading agent…"}</p> : <>

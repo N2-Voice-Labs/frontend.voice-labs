@@ -129,3 +129,30 @@ test("leaves unchanged provider assignments out of ordinary agent updates", asyn
     agent.id,
   ));
 });
+
+test("the live preview follows what you type and prompt templates fill the prompt", async () => {
+  const { container } = render(<NewAgent />);
+  const preview = () => container.querySelector(".form-preview-card")!;
+  expect(preview().textContent).toContain("Untitled agent");
+
+  fireEvent.change(await screen.findByLabelText("Agent name"), { target: { name: "name", value: "Immigration guide" } });
+  expect(preview().textContent).toContain("Immigration guide");
+
+  fireEvent.click(screen.getByRole("button", { name: "Bilingual EN/RU" }));
+  expect((screen.getByLabelText("System prompt") as HTMLTextAreaElement).value).toContain("bilingual assistant");
+  expect(preview().textContent).toMatch(/\d+ words/);
+
+  fireEvent.click(screen.getByRole("checkbox", { name: "Russian" }));
+  expect(container.querySelectorAll(".form-preview-card .lang-chip")).toHaveLength(1);
+});
+
+test("shows an unsaved-changes marker and asks the browser to confirm leaving only when dirty", async () => {
+  render(<NewAgent />);
+  const input = await screen.findByLabelText("Agent name");
+  const leave = () => { const event = new Event("beforeunload", { cancelable: true }); window.dispatchEvent(event); return event.defaultPrevented; };
+  expect(leave()).toBe(false);
+
+  fireEvent.change(input, { target: { name: "name", value: "Draft" } });
+  expect(screen.getByText("Unsaved changes")).toBeTruthy();
+  expect(leave()).toBe(true);
+});

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { isMixedScript, ScriptText } from "@/components/features/conversations/script-text";
 import {
   getConversation,
   getConversationRuntimeState,
@@ -81,14 +82,17 @@ export default function ConversationDetail() {
   const isCurrentConversationLoaded = loadedForId === id;
 
   return (
-    <main className="page-shell">
-      <p><Link href="/conversations">← Conversations</Link></p>
+    <main className="page-shell dash-main convo">
+      <div className="dash-back-row">
+        <Link className="dash-back" href="/conversations">← Conversations</Link>
+        {conversation && <Link className="dash-back" href={`/agents/${conversation.agent_id}`}>Back to agent</Link>}
+      </div>
       <p className="eyebrow">History / Detail</p>
       <h1>Conversation</h1>
       {isCurrentConversationLoaded && error && <p role="alert">Could not refresh this conversation: {error}</p>}
       {!isCurrentConversationLoaded && <p role="status">Loading conversation…</p>}
       {isCurrentConversationLoaded && conversation && (
-        <section className="panel" aria-label="Conversation details" aria-live="polite">
+        <section className="panel convo-panel convo-details" aria-label="Conversation details" aria-live="polite">
           <p>Conversation ID: <code>{conversation.id}</code></p>
           <p>Agent: <code>{conversation.agent_id}</code></p>
           <p>Status: {conversation.status}</p>
@@ -97,7 +101,7 @@ export default function ConversationDetail() {
           {conversation.ended_at && <p>Ended: {new Date(conversation.ended_at).toLocaleString()}</p>}
         </section>
       )}
-      {isCurrentConversationLoaded && <section className="panel" aria-label="Voice session activity" aria-live="polite">
+      {isCurrentConversationLoaded && <section className="panel convo-panel convo-activity" aria-label="Voice session activity" aria-live="polite">
         <h2>Voice session activity</h2>
         {activityEvents.map((event) => {
           const label = event.event_type === "SpeechStarted" ? "You started speaking"
@@ -111,7 +115,7 @@ export default function ConversationDetail() {
                           : "Voice session failed";
           const reason = event.payload.reason;
           return (
-            <p key={event.event_id}>
+            <p className="convo-event" data-type={event.event_type} key={event.event_id}>
               <strong>{label}</strong>{typeof reason === "string" && reason ? ` · ${reason}` : ""}
               {` · ${new Date(event.received_at).toLocaleString()}`}
             </p>
@@ -121,21 +125,28 @@ export default function ConversationDetail() {
           <p>No lifecycle or interruption activity has been recorded.</p>
         )}
       </section>}
-      <h2>Transcript</h2>
+      <h2 className="convo-heading">Transcript</h2>
+      {isCurrentConversationLoaded && messages.some((message) => isMixedScript(message.content)) && (
+        <p className="convo-legend" aria-hidden="true"><i className="seg-cyrillic">Cyrillic</i><i className="seg-latin">Latin</i> Words are tinted by script, so a switch mid-sentence is easy to spot.</p>
+      )}
       {!isCurrentConversationLoaded ? null : messagesError ? <p role="status">Transcript unavailable: {messagesError}</p>
-        : messages.length === 0 ? <p>No finalized transcript messages have been received.</p> : (
-        <ol className="list-stack" aria-live="polite">
+        : messages.length === 0 ? <p className="muted">No finalized transcript messages have been received.</p> : (
+        <ol className="chat" aria-live="polite">
           {messages.map((message) => (
-            <li className="list-row" key={message.id}>
-              <strong>{message.role}</strong>
-              {message.primary_language && ` · ${message.primary_language}`}: <span className="transcript-content">{message.content}</span>
-              {message.detected_languages.length > 0 && <small> · Detected: {message.detected_languages.join(", ")}</small>}
-              <small> · {new Date(message.created_at).toLocaleString()}</small>
+            <li className="chat-msg" data-role={message.role.toLowerCase() === "user" ? "user" : "agent"} key={message.id}>
+              <p className="chat-line">
+                <span className="chat-meta"><strong>{message.role}</strong>{message.primary_language && ` · ${message.primary_language}`}: </span>
+                <span className="transcript-content"><ScriptText text={message.content} /></span>
+              </p>
+              <p className="chat-foot">
+                {message.detected_languages.length > 0 && <small> · Detected: {message.detected_languages.join(", ")}</small>}
+                <small> · {new Date(message.created_at).toLocaleString()}</small>
+              </p>
             </li>
           ))}
         </ol>
       )}
-      <button type="button" onClick={() => void refresh()}>Refresh now</button>
+      <button className="mini-action convo-refresh" data-bare type="button" onClick={() => void refresh()}>Refresh now</button>
     </main>
   );
 }

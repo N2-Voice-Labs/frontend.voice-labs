@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { applyTheme, readStoredTheme, storeTheme, systemTheme, type Theme } from "./theme";
 
 /**
- * Header switch. The icon is chosen by CSS from the wrapper's data-theme, so it never flickers;
+ * Header switch. The icon is chosen by CSS from <html data-vl-theme>, so it never flickers;
  * state here only drives aria-checked. Follows the system until the visitor picks a theme.
  */
 export function ThemeToggle() {
@@ -29,14 +29,40 @@ export function ThemeToggle() {
     return () => query.removeEventListener("change", onChange);
   }, []);
 
-  function toggle() {
+  function toggle(event: MouseEvent<HTMLButtonElement>) {
     const next: Theme = theme === "dark" ? "light" : "dark";
-    const root = document.querySelector(".marketing-root");
-    root?.classList.add("theme-transition");
-    applyTheme(next);
-    storeTheme(next);
-    setTheme(next);
-    window.setTimeout(() => root?.classList.remove("theme-transition"), 500);
+    const apply = () => {
+      applyTheme(next);
+      storeTheme(next);
+      setTheme(next);
+    };
+    const doc = document as Document & { startViewTransition?: (update: () => void) => { ready: Promise<void>; finished: Promise<void> } };
+    const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!doc.startViewTransition || reduced) {
+      // Fallback: plain colour fade.
+      const root = document.querySelector(".marketing-root, .dash-root");
+      root?.classList.add("theme-transition");
+      apply();
+      window.setTimeout(() => root?.classList.remove("theme-transition"), 500);
+      return;
+    }
+
+    // The new theme grows out of the button as an expanding circle (View Transitions API).
+    const box = event.currentTarget.getBoundingClientRect();
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const html = document.documentElement;
+    html.classList.add("theme-vt");
+    const transition = doc.startViewTransition(apply);
+    void transition.ready.then(() =>
+      html.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 800, easing: "cubic-bezier(.22, 1, .36, 1)", pseudoElement: "::view-transition-new(root)" },
+      ),
+    );
+    void transition.finished.finally(() => html.classList.remove("theme-vt"));
   }
 
   return (

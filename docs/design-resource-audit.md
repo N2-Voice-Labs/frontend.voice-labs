@@ -26,12 +26,12 @@ The direction is an **editorial signal studio**: warm paper and ink create a cal
 | System area | Current foundation |
 | --- | --- |
 | Color | Paper `#f6f5ef`, surface `#fffefa`, ink `#1d2022`, muted `#747675`, line `#dfdfd8`, voice coral `#e54b38` / `#ff624c`, signal lime `#d9f455`, visible focus `#283ee8`. |
-| Typography | Manrope for display, DM Sans for product copy, DM Mono for compact utility labels, and a system editorial serif for occasional contrast. Use balanced wraps for display text and readable measure for body copy. |
-| Layout | Responsive max-width 1320px marketing container; asymmetric copy/art hero; 4px base spacing unit with larger section rhythm; product pages retain their existing separate shell. |
-| Surfaces | Warm, low-contrast paper layers; fine neutral borders; small control radii (3px) and slightly softer preview surfaces (5px); use shadows only to establish depth. |
-| Interaction | Visible 3px focus outline, clear hover/pressed CTA states, real route/anchor destinations, native disclosure menu on mobile. |
-| Motion | CSS for entrances, hover and ambient loops; Anime.js v4 for the hero orb; GSAP + ScrollTrigger + Lenis for reveals, the pinned workspace showcase, parallax and counters (marketing page only). Pinning is desktop-only and follows scroll one-to-one; `prefers-reduced-motion` disables Lenis, scrubbing, loops and the pointer light. Full spec: `docs/landing-motion-spec.md`. |
-| Responsive | Existing 1050px, 720px, and 390px breakpoints; mobile uses a native disclosure menu and stacked hero rather than a compressed desktop split. |
+| Typography | Manrope for display, DM Sans for product copy, DM Mono for compact utility labels (all via `next/font`, self-hosted), and a system editorial serif for occasional contrast. A token scale (`--text-display` … `--text-label`) replaces per-section sizes; nothing below 11px. Balanced wraps for display text and readable measure for body copy. |
+| Layout | Responsive max-width 1320px marketing container with deliberately different section compositions (asymmetric hero, preview-led signal band, editorial list, pinned wide window, edge-to-edge screens strip); four section-spacing tiers instead of one padding; product pages retain their existing separate shell. |
+| Surfaces | Warm, low-contrast paper layers; borders only where they describe structure; control radius 3px, row 4px, product window 6px; one layered shadow (`--shadow-window`) reserved for product windows. |
+| Interaction | Visible 3px focus outline, clear hover/pressed CTA states (translateY on buttons only; other hovers change background, border or opacity), real route/anchor destinations, native disclosure menu on mobile, 44px touch targets on coarse pointers. |
+| Motion | CSS for entrance, hover and ambient loops; Anime.js v4 for the hero orb (pauses off-screen); GSAP + ScrollTrigger + Lenis for one entrance timeline per section, the pinned workspace showcase, desktop-only parallax and counters. `prefers-reduced-motion` disables Lenis, scrubbing, loops and the code-switch rewrite. Full spec: `docs/landing-motion-spec.md`. |
+| Responsive | Breakpoints at 1050px, 899px (pin/parallax/marquee off), 720px (section tiers tighten) and 390px; product windows crop rather than shrink; the screens gallery is a native swipe strip on touch. |
 
 ## Reference use
 

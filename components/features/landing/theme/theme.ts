@@ -1,7 +1,7 @@
 export type Theme = "light" | "dark";
 
 export const THEME_KEY = "vl-theme";
-const ROOT = ".marketing-root";
+export const THEME_ATTRIBUTE = "data-vl-theme";
 
 export function readStoredTheme(): Theme | null {
   try {
@@ -25,8 +25,12 @@ export function systemTheme(): Theme {
 }
 
 export function applyTheme(theme: Theme) {
-  document.querySelector(ROOT)?.setAttribute("data-theme", theme);
+  document.documentElement.setAttribute(THEME_ATTRIBUTE, theme);
 }
 
-/** Runs before first paint so the page never flashes the wrong theme. Mirrors the helpers above. */
-export const themeInitScript = `(function(){try{var s=localStorage.getItem("${THEME_KEY}");var t=s==="dark"||s==="light"?s:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");var r=document.querySelector("${ROOT}");if(r)r.setAttribute("data-theme",t)}catch(e){}})();`;
+/**
+ * Runs from the root layout's <head> before first paint, so the page never flashes the wrong theme.
+ * It lives in the root layout (never re-rendered on the client) because React does not execute scripts
+ * it renders client-side. Mirrors the helpers above.
+ */
+export const themeInitScript = `(function(){try{var s=localStorage.getItem("${THEME_KEY}");var t=s==="dark"||s==="light"?s:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.setAttribute("${THEME_ATTRIBUTE}",t)}catch(e){}})();`;

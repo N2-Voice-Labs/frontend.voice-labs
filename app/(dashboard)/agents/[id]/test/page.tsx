@@ -1,8 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Room, RoomEvent, Track } from "livekit-client";
 import { useParams } from "next/navigation";
+import { PipelineCheck } from "@/components/features/playground/pipeline-check";
+import { deriveStageMode, stageLabel, useStagePreview, VoiceStage } from "@/components/features/playground/voice-stage";
+import { agentHue } from "@/lib/agent-view";
 import {
   createVoiceSession,
   endVoiceSession,
@@ -12,6 +16,7 @@ import {
   getMessages,
   type ConversationMessage,
 } from "@/lib/platform";
+import "./playground.css";
 
 type Phase = "idle" | "starting" | "connected" | "reconnecting" | "ending" | "ended" | "disconnected" | "error";
 
@@ -35,6 +40,8 @@ export default function VoicePlayground() {
   const [conversationActivity, setConversationActivity] = useState("Waiting for your speech");
   const [microphoneActive, setMicrophoneActive] = useState(false);
   const [agentSpeaking, setAgentSpeaking] = useState(false);
+  const [levels, setLevels] = useState({ user: 0, agent: 0 });
+  const preview = useStagePreview();
   const [audioPlaybackError, setAudioPlaybackError] = useState("");
   const [conversationStatus, setConversationStatus] = useState("");
   const [conversationId, setConversationId] = useState("");
@@ -182,8 +189,10 @@ export default function VoicePlayground() {
     setStatusMessage("Requesting microphone permission…");
     setRuntimeStatus("");
     setConversationActivity("Waiting for your speech");
+    preview.stop();
     setMicrophoneActive(false);
     setAgentSpeaking(false);
+    setLevels({ user: 0, agent: 0 });
     setAudioPlaybackError("");
     setConversationStatus("");
     setMessages([]);
@@ -270,6 +279,8 @@ export default function VoicePlayground() {
         const remoteSpeaking = speakers.some((speaker) => !speaker.isLocal);
         setMicrophoneActive(localSpeaking);
         setAgentSpeaking(remoteSpeaking);
+        const loudest = (local: boolean) => Math.max(0, ...speakers.filter((speaker) => speaker.isLocal === local).map((speaker) => speaker.audioLevel ?? 0));
+        setLevels({ user: loudest(true), agent: loudest(false) });
       });
       livekitRoom.on(RoomEvent.Reconnecting, () => {
         if (!mountedRef.current) return;
@@ -287,6 +298,7 @@ export default function VoicePlayground() {
         if (!mountedRef.current) return;
         setMicrophoneActive(false);
         setAgentSpeaking(false);
+        setLevels({ user: 0, agent: 0 });
         if (intentionalDisconnect.current) return;
         setPhase("disconnected");
         setStatusMessage("LiveKit disconnected. The Platform session may still need to be ended.");
@@ -360,30 +372,67 @@ export default function VoicePlayground() {
 
   const busy = phase === "starting" || phase === "ending";
   const canStart = !busy && !sessionId && phase !== "connected" && phase !== "reconnecting";
+  const liveMode = deriveStageMode({ phase, microphoneActive, agentSpeaking, conversationActivity });
+  const stageMode = preview.active ? preview.mode : liveMode;
+  const stageLevel = preview.active ? preview.level : stageMode === "user" ? levels.user : stageMode === "agent" ? levels.agent : 0;
 
   return (
-    <main>
-      <p><a href={`/agents/${params.id}`}>← Agent</a></p>
-      <h1>Voice Playground</h1>
-      <p role="status">Connection: {phase}{statusMessage ? ` · ${statusMessage}` : ""}</p>
-      <p>Runtime handoff: {runtimeStatus || "not started"}</p>
-      <p aria-live="polite">Conversation activity: {conversationActivity}</p>
-      <p aria-live="polite">Microphone activity: {microphoneActive ? "Speech detected" : "No speech detected"}</p>
-      <p aria-live="polite">AI speaking: {agentSpeaking ? "Yes" : "No"}</p>
-      {audioPlaybackError && <p role="alert">{audioPlaybackError}</p>}
-      <p>Persisted conversation: {conversationStatus || "not started"}</p>
-      {canStart ? <button type="button" onClick={start} disabled={busy}>Start conversation</button> : (
-        <button type="button" onClick={end} disabled={busy || !sessionId}>
-          {phase === "disconnected" || phase === "error" ? "Retry end session" : "End conversation"}
-        </button>
-      )}
-      {conversationId && <p><a href={`/conversations/${conversationId}`}>Open conversation history</a></p>}
-      <h2>Live transcript</h2>
+    <main className="page-shell dash-main play">
+      <Link className="dash-back" href={`/agents/${params.id}`}>← Back to agent</Link>
+      <div className="dash-head">
+        <div>
+          <p className="eyebrow">Agents / Playground</p>
+          <h1>Voice Playground</h1>
+          <p className="page-intro">Talk to your agent and watch each part of the pipeline respond.</p>
+        </div>
+      </div>
+
+      <div className="play-grid">
+        <section className="play-stage-card" aria-label="Agent voice">
+          <VoiceStage mode={stageMode} level={stageLevel} hue={agentHue(params.id)} />
+          <p className="stage-caption" data-mode={stageMode}>{preview.active && preview.caption ? preview.caption : stageLabel(stageMode)}</p>
+          {preview.active && <p className="stage-badge">Preview · simulated, not a live session</p>}
+          <div className="play-controls">
+            {canStart ? <button className="play-primary" data-bare type="button" onClick={start} disabled={busy}>Start conversation</button> : (
+              <button className="play-primary" data-bare type="button" onClick={end} disabled={busy || !sessionId}>
+                {phase === "disconnected" || phase === "error" ? "Retry end session" : "End conversation"}
+              </button>
+            )}
+            {canStart && !preview.active && <button className="mini-action" data-bare type="button" onClick={preview.start}>Preview animation</button>}
+            {preview.active && <button className="mini-action" data-bare type="button" onClick={preview.stop}>Stop preview</button>}
+          </div>
+          {conversationId && <p className="play-history"><Link href={`/conversations/${conversationId}`}>Open conversation history</Link></p>}
+        </section>
+
+        <div className="play-side">
+          <PipelineCheck
+            key={conversationId}
+            phase={phase}
+            runtimeStatus={runtimeStatus}
+            hasConversation={Boolean(conversationId)}
+            messages={messages}
+            microphoneActive={microphoneActive}
+            agentSpeaking={agentSpeaking}
+          />
+          <section className="play-diag" aria-labelledby="diag-title">
+            <h2 id="diag-title">Diagnostics</h2>
+            <p role="status">Connection: {phase}{statusMessage ? ` · ${statusMessage}` : ""}</p>
+            <p>Runtime handoff: {runtimeStatus || "not started"}</p>
+            <p aria-live="polite">Conversation activity: {conversationActivity}</p>
+            <p aria-live="polite">Microphone activity: {microphoneActive ? "Speech detected" : "No speech detected"}</p>
+            <p aria-live="polite">AI speaking: {agentSpeaking ? "Yes" : "No"}</p>
+            {audioPlaybackError && <p role="alert">{audioPlaybackError}</p>}
+            <p>Persisted conversation: {conversationStatus || "not started"}</p>
+          </section>
+        </div>
+      </div>
+
+      <h2 className="play-heading">Live transcript</h2>
       {transcriptError && <p role="status">{transcriptError}</p>}
-      {messages.length === 0 ? <p>Transcript will appear here when the Platform receives finalized speech events.</p> : (
-        <ol aria-live="polite">
+      {messages.length === 0 ? <p className="muted">Transcript will appear here when the Platform receives finalized speech events.</p> : (
+        <ol className="play-transcript" aria-live="polite">
           {messages.map((message) => (
-            <li key={message.id}>
+            <li key={message.id} data-role={message.role.toLowerCase() === "user" ? "user" : "agent"}>
               <strong>{message.role}</strong>
               {message.primary_language && ` · ${message.primary_language}`}: {message.content}
               {message.detected_languages.length > 0 && <small> · Detected: {message.detected_languages.join(", ")}</small>}

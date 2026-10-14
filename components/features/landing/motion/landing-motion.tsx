@@ -2,22 +2,24 @@
 
 import Lenis from "lenis";
 import { useEffect } from "react";
+import { SplitText } from "gsap/SplitText";
 import { EASE_OUT, gsap, ScrollTrigger } from "./gsap";
 import { registerSmoothScroll, scrollToElement } from "./scroll-controller";
 
-const REVEAL_FROM = {
-  up: { opacity: 0, y: 24 },
+const STEP_FROM = {
+  up: { opacity: 0, y: 20 },
   fade: { opacity: 0 },
-  scale: { opacity: 0, scale: 0.94, y: 24 },
-  line: { scaleX: 0, transformOrigin: "left center" },
+  scale: { opacity: 0, scale: 0.96, y: 20 },
 } as const;
+const STEP_GAP = 0.14;
 
 const all = <T extends HTMLElement>(selector: string) => gsap.utils.toArray<T>(selector);
 
 /**
  * The single owner of page-level motion. Server-rendered sections only carry data attributes:
- *   data-reveal="up|fade|scale|line"   data-reveal-delay="0.1"
- *   data-reveal-group > data-reveal-item   (staggered)
+ *   data-sequence             a section whose [data-step] children enter as ONE timeline, lowest step first;
+ *                             equal steps enter together (lightly staggered). data-step-from="scale|fade".
+ *   data-split                headline rises word by word out of a line mask (used on two headlines only)
  *   data-parallax="40"        symmetric drift while the section crosses the viewport
  *   data-parallax-exit="48"   drift down while the section scrolls away (first screen)
  *   data-scroll-fade          fades out over the first part of the section's exit
@@ -70,31 +72,75 @@ export function LandingMotion() {
         lenis.destroy();
       });
 
-      // Entrances: one transform/opacity vocabulary for every section.
-      all("[data-reveal]").forEach((element) => {
-        const from = REVEAL_FROM[element.dataset.reveal as keyof typeof REVEAL_FROM] ?? REVEAL_FROM.up;
-        gsap.from(element, {
-          ...from,
-          duration: 0.8,
-          delay: Number(element.dataset.revealDelay) || 0,
-          ease: EASE_OUT,
-          clearProps: "opacity,transform,visibility",
-          scrollTrigger: { trigger: element, start: "top 88%", once: true },
+      // Entrances: each section is one timeline. Steps run in order (visual, headline, support, secondary)
+      // instead of every element fading in on its own trigger.
+      all("[data-sequence]").forEach((section) => {
+        const steps = new Map<number, HTMLElement[]>();
+        section.querySelectorAll<HTMLElement>("[data-step]").forEach((element) => {
+          const step = Number(element.dataset.step) || 0;
+          steps.set(step, [...(steps.get(step) ?? []), element]);
+        });
+        if (!steps.size) return;
+        const timeline = gsap.timeline({
+          defaults: { duration: 0.8, ease: EASE_OUT },
+          scrollTrigger: { trigger: section, start: "top 72%", once: true },
+        });
+        [...steps.entries()].sort(([a], [b]) => a - b).forEach(([, elements], order) => {
+          elements.forEach((element, index) => {
+            const from = STEP_FROM[element.dataset.stepFrom as keyof typeof STEP_FROM] ?? STEP_FROM.up;
+            timeline.from(element, { ...from, clearProps: "opacity,transform,visibility" }, order * STEP_GAP + index * 0.08);
+          });
         });
       });
 
-      all("[data-reveal-group]").forEach((group) => {
-        const items = group.querySelectorAll("[data-reveal-item]");
-        if (!items.length) return;
-        gsap.from(items, {
-          opacity: 0,
-          y: 24,
-          duration: 0.8,
-          stagger: 0.09,
-          ease: EASE_OUT,
-          clearProps: "opacity,transform,visibility",
-          scrollTrigger: { trigger: group, start: "top 86%", once: true },
+      // Counters count once; the server markup already holds the final number.
+      all("[data-count-to]").forEach((element) => {
+        const target = Number(element.dataset.countTo);
+        if (!Number.isFinite(target)) return;
+        const finalText = element.textContent ?? String(target);
+        const state = { value: 0 };
+        element.textContent = "0";
+        cleanups.push(() => { element.textContent = finalText; });
+        gsap.to(state, {
+          value: target,
+          duration: 1.6,
+          ease: "power3.out",
+          snap: { value: 1 },
+          onUpdate: () => { element.textContent = String(state.value); },
+          scrollTrigger: { trigger: element, start: "top 85%", once: true },
         });
+      });
+
+      ScrollTrigger.sort();
+      ScrollTrigger.refresh();
+
+      return () => cleanups.forEach((cleanup) => cleanup());
+    });
+
+    // Desktop only: depth effects and the masked headline reveal. Phones get a plain fade instead, so
+    // touch scrolling stays native-feeling and no pinned/parallax work competes with it.
+    mm.add("(min-width: 900px) and (prefers-reduced-motion: no-preference)", () => {
+      const cleanups: Array<() => void> = [];
+
+      // Headlines: words rise out of a per-line mask. Reserved for the two headlines that carry the page
+      // (the signal and the closing); the hero headline is excluded because CodeSwitch rewrites it.
+      gsap.registerPlugin(SplitText);
+      all("[data-split]").forEach((element) => {
+        const split = SplitText.create(element, {
+          type: "lines,words",
+          mask: "lines",
+          linesClass: "split-line",
+          autoSplit: true,
+          onSplit: (self) =>
+            gsap.from(self.words, {
+              yPercent: 115,
+              duration: 0.9,
+              stagger: 0.05,
+              ease: EASE_OUT,
+              scrollTrigger: { trigger: element, start: "top 88%", once: true },
+            }),
+        });
+        cleanups.push(() => split.revert());
       });
 
       // Parallax: a few elements, small distances.
@@ -127,24 +173,6 @@ export function LandingMotion() {
         });
       });
 
-      // Counters count once; the server markup already holds the final number.
-      all("[data-count-to]").forEach((element) => {
-        const target = Number(element.dataset.countTo);
-        if (!Number.isFinite(target)) return;
-        const finalText = element.textContent ?? String(target);
-        const state = { value: 0 };
-        element.textContent = "0";
-        cleanups.push(() => { element.textContent = finalText; });
-        gsap.to(state, {
-          value: target,
-          duration: 1.6,
-          ease: "power3.out",
-          snap: { value: 1 },
-          onUpdate: () => { element.textContent = String(state.value); },
-          scrollTrigger: { trigger: element, start: "top 85%", once: true },
-        });
-      });
-
       // Ambient: fixed layers drift a little over the whole document.
       all("[data-ambient-depth]").forEach((layer) => {
         gsap.to(layer, {
@@ -154,28 +182,14 @@ export function LandingMotion() {
         });
       });
 
-      // One pointer-following light, fine pointers only.
-      const glow = document.querySelector<HTMLElement>(".pointer-glow");
-      if (glow && window.matchMedia("(pointer: fine)").matches) {
-        gsap.set(glow, { xPercent: -50, yPercent: -50, x: window.innerWidth / 2, y: window.innerHeight / 2 });
-        const moveX = gsap.quickTo(glow, "x", { duration: 0.9, ease: "power3" });
-        const moveY = gsap.quickTo(glow, "y", { duration: 0.9, ease: "power3" });
-        const onPointerMove = (event: PointerEvent) => {
-          moveX(event.clientX);
-          moveY(event.clientY);
-          glow.classList.add("is-live");
-        };
-        window.addEventListener("pointermove", onPointerMove, { passive: true });
-        cleanups.push(() => {
-          window.removeEventListener("pointermove", onPointerMove);
-          glow.classList.remove("is-live");
-        });
-      }
-
-      ScrollTrigger.sort();
       ScrollTrigger.refresh();
-
       return () => cleanups.forEach((cleanup) => cleanup());
+    });
+
+    mm.add("(max-width: 899px) and (prefers-reduced-motion: no-preference)", () => {
+      all("[data-split]").forEach((element) => {
+        gsap.from(element, { opacity: 0, y: 16, duration: 0.7, ease: EASE_OUT, clearProps: "opacity,transform", scrollTrigger: { trigger: element, start: "top 88%", once: true } });
+      });
     });
 
     return () => {
