@@ -25,6 +25,11 @@ export function DashboardBackground() {
   return <NetworkBackground mode={modeForPath(usePathname() ?? "")} />;
 }
 
+/** The same field behind the landing hero: dimmed under the headline, signals travelling to the orb. */
+export function HeroNetwork() {
+  return <NetworkBackground variant="hero" mode="signal" />;
+}
+
 function readRgb(value: string, fallback: Rgb): Rgb {
   const hex = value.trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)?.[1];
   if (!hex) return fallback;
@@ -42,11 +47,13 @@ const smooth = (edge0: number, edge1: number, x: number) => {
  *   idle    nodes breathe
  *   active  + slow waves ripple through, and the cursor draws connections
  *   signal  + caller voices hop along the lines to an agent node, which answers with a pulse
- * The content column is dimmed so the work stays readable. It pauses when the tab is hidden, and it
+ * The content column is dimmed so the work stays readable. The "hero" variant sits inside the landing hero
+ * instead of fixed to the viewport: it dims the headline block, aims its signals at the orb, and pauses
+ * once scrolled out of view. It pauses when the tab is hidden, and it
  * draws a single still frame under prefers-reduced-motion and on narrow screens. Colours come from the
  * workspace tokens (--ink, --accent) so both themes work; nothing here is audio and nothing is sent.
  */
-export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: NetworkMode }>) {
+export function NetworkBackground({ mode = "active", variant = "page" }: Readonly<{ mode?: NetworkMode; variant?: "page" | "hero" }>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const modeRef = useRef(mode);
   useEffect(() => { modeRef.current = mode; }, [mode]);
@@ -61,8 +68,10 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
     const finePointer = window.matchMedia("(pointer: fine)").matches;
 
     let W = 0, H = 0, raf = 0, last = performance.now(), t = 0;
+    let onScreen = true;
     let nodes: NetNode[] = [];
     let core = -1;
+    let coreRadius = 0; // hero: the orb's radius, so pulses leave its edge rather than hiding behind it
     let ink = FALLBACK_INK, accent = FALLBACK_ACCENT, strength = 1.6;
     const pointer = { x: -9999, y: -9999, tx: -9999, ty: -9999, on: false };
     const waves: { x: number; y: number; r: number }[] = [];
@@ -93,6 +102,16 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
       seed = 7; nodes = [];
       const columnHalf = Math.min(W - 48, 1200) / 2;
       const narrow = W < 760;
+      const hero = variant === "hero";
+      const scope = canvas!.parentElement;
+      const boxOf = (selector: string) => {
+        const el = scope?.querySelector(selector);
+        if (!el) return null;
+        const box = el.getBoundingClientRect();
+        return { l: box.left - rect.left, t: box.top - rect.top, r: box.right - rect.left, b: box.bottom - rect.top };
+      };
+      const copy = hero ? boxOf(".hero-copy") : null;
+      const orb = hero ? boxOf(".art-core") : null;
       for (let y = SPACING * 0.5; y < H + SPACING; y += SPACING * 0.87) {
         const row = Math.round(y / SPACING);
         for (let x = (row % 2) * SPACING * 0.5; x < W + SPACING; x += SPACING) {
@@ -100,7 +119,12 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
           const nx = x + (rand() - 0.5) * SPACING * 0.6, ny = y + (rand() - 0.5) * SPACING * 0.5;
           // dim behind the content column; the gutters and the page head keep more of the field
           const beyond = Math.abs(nx - W / 2) - columnHalf;
-          const quiet = narrow ? 0.35 : 0.3 + 0.7 * smooth(-60, 180, beyond);
+          let quiet = narrow ? 0.35 : 0.3 + 0.7 * smooth(-60, 180, beyond);
+          if (hero) {
+            // dim behind the headline block; the rest of the hero keeps the field
+            const gap = copy ? Math.hypot(Math.max(copy.l - 24 - nx, 0, nx - copy.r - 24), Math.max(copy.t - 24 - ny, 0, ny - copy.b - 24)) : 999;
+            quiet = 0.1 + 0.9 * smooth(0, 200, gap);
+          }
           nodes.push({ x: nx, y: ny, ox: 0, oy: 0, phase: rand() * TAU, quiet, heat: 0, near: 0, lift: 0, links: [] });
         }
       }
@@ -111,11 +135,13 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
           if (Math.hypot(a.x - b.x, a.y - b.y) < maxD) { a.links.push(j); b.links.push(i); }
         }
       });
-      // the agent node the signals head for: upper right, in the page head
+      // the agent node the signals head for: upper right in the page head, or the orb's centre in the hero
+      const aimX = orb ? (orb.l + orb.r) / 2 : W * 0.84, aimY = orb ? (orb.t + orb.b) / 2 : H * 0.3;
+      coreRadius = orb ? (orb.r - orb.l) / 2 : 0;
       let best = Infinity;
       core = -1;
       nodes.forEach((n, i) => {
-        const d = Math.hypot(n.x - W * 0.84, n.y - H * 0.3);
+        const d = Math.hypot(n.x - aimX, n.y - aimY);
         if (d < best) { best = d; core = i; }
       });
       if (core >= 0) nodes[core].quiet = 1;
@@ -125,7 +151,9 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
     function spawnSignal() {
       if (core < 0) return;
       // start at a left or bottom edge node and walk greedily toward the agent, with some wander
-      const starts = nodes.map((_, i) => i).filter((i) => nodes[i].x < W * 0.5 && (nodes[i].x < 40 || nodes[i].y > H - 40));
+      const starts = nodes.map((_, i) => i).filter((i) => variant === "hero"
+        ? nodes[i].x > W * 0.45 && (nodes[i].x > W - 70 || nodes[i].y < 45 || nodes[i].y > H - 60)
+        : nodes[i].x < W * 0.5 && (nodes[i].x < 40 || nodes[i].y > H - 40));
       if (!starts.length) return;
       let cur = starts[Math.floor(Math.random() * starts.length)];
       const path = [cur];
@@ -170,7 +198,8 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
       nodes.forEach((a, ai) => a.links.forEach((j) => {
         if (j < ai) return;
         const b = nodes[j];
-        const al = (0.05 * Math.min(a.quiet, b.quiet) + 0.25 * Math.min(a.lift, b.lift)) * strength;
+        const quiet = Math.min(a.quiet, b.quiet);
+        const al = (0.05 * quiet + 0.25 * Math.min(a.lift, b.lift) * quiet) * strength;
         if (al < 0.012) return;
         ctx!.strokeStyle = inkA(al); line(a, b);
       }));
@@ -219,8 +248,8 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
         const e = 1 - Math.pow(1 - p.u, 3);
         ctx!.lineWidth = 1;
         ctx!.strokeStyle = accentA(0.7 * (1 - p.u));
-        ctx!.beginPath(); ctx!.arc(p.x, p.y, 6 + e * 70, 0, TAU); ctx!.stroke();
-        if (p.u > 0.25) { ctx!.strokeStyle = inkA(0.5 * (1 - p.u) * strength); ctx!.beginPath(); ctx!.arc(p.x, p.y, 10 + (e - 0.2) * 40, 0, TAU); ctx!.stroke(); }
+        ctx!.beginPath(); ctx!.arc(p.x, p.y, coreRadius + 6 + e * 70, 0, TAU); ctx!.stroke();
+        if (p.u > 0.25) { ctx!.strokeStyle = inkA(0.5 * (1 - p.u) * strength); ctx!.beginPath(); ctx!.arc(p.x, p.y, coreRadius + 10 + (e - 0.2) * 40, 0, TAU); ctx!.stroke(); }
       }
 
       nodes.forEach((n, i) => {
@@ -230,7 +259,7 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
         ctx!.fillStyle = n.heat > 0.05 ? accentA(Math.min(1, a)) : inkA(a);
         ctx!.beginPath(); ctx!.arc(n.x + n.ox, n.y + n.oy, r, 0, TAU); ctx!.fill();
       });
-      if (core >= 0 && m === "signal") {
+      if (core >= 0 && m === "signal" && !coreRadius) {
         const c = nodes[core];
         ctx!.strokeStyle = inkA(0.2 * strength); ctx!.lineWidth = 1;
         ctx!.beginPath(); ctx!.arc(c.x + c.ox, c.y + c.oy, 9, 0, TAU); ctx!.stroke();
@@ -265,7 +294,7 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
     const sync = () => {
       stop();
       if (still()) draw(0, "idle");
-      else if (!document.hidden) { last = performance.now(); raf = requestAnimationFrame(frame); }
+      else if (!document.hidden && onScreen) { last = performance.now(); raf = requestAnimationFrame(frame); }
     };
 
     readColors();
@@ -274,15 +303,22 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
 
     const resize = new ResizeObserver(() => { build(); sync(); });
     resize.observe(canvas);
+    // A canvas inside the hero has nothing to draw once it has scrolled away.
+    const visibility = variant === "hero" && typeof IntersectionObserver === "function"
+      ? new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; sync(); })
+      : null;
+    visibility?.observe(canvas);
     const theme = new MutationObserver(() => { readColors(); if (still()) draw(0, "idle"); });
     theme.observe(document.documentElement, { attributes: true, attributeFilter: ["data-vl-theme"] });
     document.addEventListener("visibilitychange", sync);
     motionQuery.addEventListener("change", sync);
     narrowQuery.addEventListener("change", sync);
 
-    // The canvas is a fixed layer behind the content, so the pointer is tracked on the window.
+    // The canvas sits behind the content, so the pointer is tracked on the window, in canvas coordinates.
     const onMove = (event: PointerEvent) => {
-      pointer.tx = event.clientX; pointer.ty = event.clientY;
+      const box = canvas.getBoundingClientRect();
+      pointer.tx = event.clientX - box.left; pointer.ty = event.clientY - box.top;
+      if (pointer.tx < 0 || pointer.ty < 0 || pointer.tx > box.width || pointer.ty > box.height) { pointer.on = false; return; }
       if (!pointer.on) { pointer.x = pointer.tx; pointer.y = pointer.ty; }
       pointer.on = true;
     };
@@ -295,6 +331,7 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
     return () => {
       stop();
       resize.disconnect();
+      visibility?.disconnect();
       theme.disconnect();
       document.removeEventListener("visibilitychange", sync);
       motionQuery.removeEventListener("change", sync);
@@ -304,5 +341,5 @@ export function NetworkBackground({ mode = "active" }: Readonly<{ mode?: Network
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="network-bg" data-mode={mode} aria-hidden="true" />;
+  return <canvas ref={canvasRef} className={variant === "hero" ? "hero-network" : "network-bg"} data-mode={mode} aria-hidden="true" />;
 }

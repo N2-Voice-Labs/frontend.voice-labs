@@ -19,7 +19,7 @@ gallery pause, conversation preview) are client components.
 | Fonts | `next/font` (Manrope, DM Sans, DM Mono; Latin + Cyrillic for Manrope) | Self-hosted, no render-blocking CSS `@import`. |
 | Styling | Plain CSS (`app/globals.css`, `motion.css`, `theme-dark.css`) | The project has no Tailwind; do not add a second styling system. |
 
-Not added: Tailwind, Framer Motion, Lucide, WebGL/canvas.
+Not added: Tailwind, Framer Motion, Lucide, WebGL. One 2D canvas (the hero network, shared with the dashboard) is the only canvas.
 
 ## Design tokens (`:root` in `globals.css`)
 
@@ -49,7 +49,7 @@ glows, no blend-mode layers over the viewport.
 | Section | Treatment | Spacing | Motion |
 | --- | --- | --- | --- |
 | Header | Transparent at top → paper + blur + hairline after 16 px (CSS, 300 ms). Mobile menu is a native disclosure. | – | – |
-| Hero | Asymmetric copy / orb. Constrained text, no section label. | xl | CSS entrance once. Orb parallax on exit (desktop). Code-switch headline phrase: English ↔ Russian, 6 s hold, paused off-screen and in hidden tabs. |
+| Hero | Asymmetric copy / orb. Constrained text, no section label. | xl | CSS entrance once. Orb parallax on exit (desktop). Code-switch headline phrase: English → Russian → Kyrgyz → Kazakh → Korean, 5 s hold, paused off-screen and in hidden tabs. |
 | Signal (dark band) | Product preview leads, copy beside it. | l | One sequence: eyebrow + preview, intro, detail. Headline uses the masked word reveal (desktop). Tab switch cross-fades the conversation. |
 | Capabilities | Editorial list, smaller headline, left-aligned. | m | One sequence: heading → intro → rows. Row hover changes background and arrow only. |
 | How it works (pinned showcase) | Wide product window; absorbs the former "process" steps as its three tabs. | m | Entrance scrubbed on approach (scale, y, rotateX, clip-path); pinned ≈ 2.4 viewports, progress selects Agents / Playground / Conversations; tab click scrolls to its segment. **< 900 px wide, < 640 px tall or reduced motion:** no pin; tabs switch by state. |
@@ -126,4 +126,5 @@ pinned) → data (dark) → interactive (light) → screens (dark) → close (li
 | --- | --- | --- |
 | Circular theme reveal | `ThemeToggle` uses the View Transitions API and animates `clip-path: circle()` on `::view-transition-new(root)` from the button's centre. Scoped by `html.theme-vt`. User-initiated, so it earns its motion. | No API support or reduced motion: 450 ms colour fade. |
 | Masked headline reveal | `data-split` headings use GSAP `SplitText` (`lines,words`, `mask: "lines"`, `autoSplit`). Signal and closing only. | < 900 px: fade. Reduced motion: untouched. |
-| Hero code-switch | `CodeSwitch` rewrites the italic phrase between English and Russian (both 21 characters) with a left-to-right letter scramble. The h1 reserves the taller state, so nothing below moves. | Static English; screen readers always get the English phrase. |
+| Hero code-switch | `CodeSwitch` cycles the italic phrase through English, Russian, Kyrgyz, Kazakh and Korean as a wave: the letters lift away left to right (0.42 s, `power2.in`, 20 ms apart), the text and colour swap, and the next phrase rises in on a second wave (0.7 s, `power3.out`, 30 ms apart). Words stay whole, letters are separate boxes. Each language takes its flag colour (`--lang-a` per `data-lang`; lighter on dark): English blue, Russian red, Kyrgyz gold, Kazakh sky blue, Korean the taegeuk red→blue blended letter by letter (`--p`), upright. The h1 reserves its tallest state so nothing below it moves; phrases are short enough that no word wraps. | Static English; screen readers always get the English phrase. |
+| Hero network | The dashboard's node field (`HeroNetwork`, a canvas inside `.hero-stage`) behind the hero: dimmed under the headline block, coral signals travel in to the orb and it answers with rings that leave its edge. Pauses off-screen and in hidden tabs; one still frame under reduced motion and on phones. Colours come from `--ink` / `--accent`, so both themes work. | Still frame. |

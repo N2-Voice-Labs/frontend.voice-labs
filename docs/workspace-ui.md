@@ -40,13 +40,15 @@
   automatically. Hardcoded colours need an override in `dashboard-dark.css`.
 
 ## Network background
-- `components/features/dashboard/network-background.tsx`: a fixed canvas (2D API, no library) of sparse nodes and
+- `components/features/network/network-background.tsx`: a fixed canvas (2D API, no library) of sparse nodes and
   faint lines behind the workspace. Modes: `idle` (nodes breathe), `active` (+ slow waves, cursor connections),
   `signal` (+ coral signals hop along the lines to an agent node that answers with a pulse). `modeForPath`
   picks it: `signal` on `/agents`, `idle` on a live playground session, `active` elsewhere.
 - The content column is dimmed so work stays readable; colours come from `--ink` / `--accent`, so both themes
   work (re-read when `data-vl-theme` changes). It draws one still frame under `prefers-reduced-motion` and below
   900px, pauses in a hidden tab, ignores touch, and is `aria-hidden` / `pointer-events: none`.
+- The landing hero reuses it as `HeroNetwork` (variant `hero`): the canvas lives inside the hero instead of fixed to the
+  viewport, dims the headline block, aims its signals at the orb, and pauses when scrolled out of view.
 - Ported from the red team portal's `NetworkBackground` idea (read-only reference, nothing there was changed):
   the red "attack" is now a calm voice-signal mode, and the dimmed side became the content column.
 

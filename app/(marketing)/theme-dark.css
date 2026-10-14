@@ -106,3 +106,10 @@ html[data-vl-theme="dark"] .marketing-root .hero-art[data-live="true"] .art-core
 html[data-vl-theme="dark"] .marketing-root .orb-voice-button { border-color: #3a4142; }
 html[data-vl-theme="dark"] .marketing-root .orb-voice-button[aria-pressed="true"] { color: #1d2022; border-color: var(--signal); }
 html[data-vl-theme="dark"] .marketing-root .orb-voice-note { color: #8b8f88; }
+
+/* Hero code-switch: flag colours, lightened for the dark background. */
+html[data-vl-theme="dark"] .marketing-root .code-switch { --lang-a: #86a6ff; }
+html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="ru"] { --lang-a: #ff6b5b; }
+html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="ky"] { --lang-a: #f2b632; }
+html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="kk"] { --lang-a: #35c7e0; }
+html[data-vl-theme="dark"] .marketing-root .code-switch[data-lang="ko"] { --lang-a: #ff7a86; --lang-b: #6ea0ff; }

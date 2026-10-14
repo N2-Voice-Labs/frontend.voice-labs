@@ -1,22 +1,64 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef, type CSSProperties } from "react";
 import { canAnimate, gsap } from "./motion/gsap";
 
-// Both phrases are 21 characters so letters can settle in place while the line morphs.
+// "Even when you switch." in five languages. Each language takes its flag colour in CSS (`data-lang`).
 const PHRASES = [
-  { text: "Even when you switch.", lang: "en", glyphs: "abcdefghijklmnopqrstuvwxyz" },
-  { text: "Даже при смене языка.", lang: "ru", glyphs: "абвгдежзиклмнопрстуфхцчшэюя" },
+  { text: "Even when you switch.", lang: "en" },
+  { text: "Даже при смене языка.", lang: "ru" },
+  { text: "Тил алмашса да.", lang: "ky" },
+  { text: "Тіл ауысса да.", lang: "kk" },
+  { text: "언어를 바꿔도.", lang: "ko" },
 ] as const;
 
 const FIRST_DELAY = 5000;
-const HOLD = 6000;
-const MORPH_SECONDS = 1.2;
+const HOLD = 5000;
+
+// Words stay whole (they wrap as units); letters are separate so they can ripple one after another.
+// `--p` is a letter's place along the phrase, used for the Korean red-to-blue blend.
+const place = (position: number, total: number) => `${total > 1 ? (position / (total - 1)) * 100 : 0}%`;
+
+function Letters({ text }: Readonly<{ text: string }>) {
+  const words = text.split(" ");
+  const total = text.replaceAll(" ", "").length;
+  let position = 0;
+  return <>{words.map((word, w) => (
+    <Fragment key={w}>
+      <span className="cs-word">{[...word].map((char, i) => <span className="cs-char" key={i} style={{ "--p": place(position++, total) } as CSSProperties}>{char}</span>)}</span>
+      {w < words.length - 1 && " "}
+    </Fragment>
+  ))}</>;
+}
+
+/** The same markup as <Letters>, written by hand because the text changes outside React. */
+function fill(node: HTMLElement, text: string) {
+  const words = text.split(" ");
+  const total = text.replaceAll(" ", "").length;
+  let position = 0;
+  node.replaceChildren();
+  words.forEach((word, w) => {
+    const wrap = document.createElement("span");
+    wrap.className = "cs-word";
+    for (const char of word) {
+      const letter = document.createElement("span");
+      letter.className = "cs-char";
+      letter.style.setProperty("--p", place(position++, total));
+      letter.textContent = char;
+      wrap.append(letter);
+    }
+    node.append(wrap);
+    if (w < words.length - 1) node.append(" ");
+  });
+}
+
+const lettersOf = (node: HTMLElement) => Array.from(node.querySelectorAll(".cs-char"));
 
 /**
- * The hero's italic phrase alternates between English and Russian, letter by letter.
+ * The hero's italic phrase cycles through English, Russian, Kyrgyz, Kazakh and Korean. The letters lift
+ * away left to right and the next phrase rises in behind them: one wave out, one wave in.
  * Screen readers get the static English phrase; the animated text is hidden from them.
- * The parent heading reserves the taller of the two states so nothing below it jumps.
+ * The parent heading reserves its tallest state so nothing below it jumps.
  */
 export function CodeSwitch() {
   const wrap = useRef<HTMLSpanElement>(null);
@@ -38,10 +80,10 @@ export function CodeSwitch() {
       heading.style.minHeight = "";
       let tallest = 0;
       for (const phrase of PHRASES) {
-        node.textContent = phrase.text;
+        fill(node, phrase.text);
         tallest = Math.max(tallest, heading.offsetHeight);
       }
-      node.textContent = PHRASES[index].text;
+      fill(node, PHRASES[index].text);
       heading.style.minHeight = `${tallest}px`;
     };
 
@@ -55,35 +97,36 @@ export function CodeSwitch() {
     };
 
     const morph = (to: number) => {
-      const from = node.textContent ?? "";
       const target = PHRASES[to];
-      const length = Math.max(from.length, target.text.length);
-      const progress = { value: 0 };
       morphing = true;
-      container.dataset.lang = target.lang;
       container.classList.add("is-morphing");
 
-      tween = gsap.to(progress, {
-        value: 1,
-        duration: MORPH_SECONDS,
-        ease: "none",
-        onUpdate: () => {
-          let out = "";
-          for (let i = 0; i < length; i++) {
-            const start = (i / length) * 0.65;
-            const final = target.text[i] ?? " ";
-            if (progress.value >= start + 0.3) out += final;
-            else if (progress.value < start) out += from[i] ?? " ";
-            else out += final === " " ? " " : target.glyphs[Math.floor(Math.random() * target.glyphs.length)];
-          }
-          node.textContent = out;
-        },
+      // 1. the current phrase lifts away, left to right
+      tween = gsap.to(lettersOf(node), {
+        yPercent: -42,
+        opacity: 0,
+        duration: 0.42,
+        ease: "power2.in",
+        stagger: { each: 0.02 },
         onComplete: () => {
-          node.textContent = target.text;
-          index = to;
-          morphing = false;
-          container.classList.remove("is-morphing");
-          schedule(HOLD);
+          // 2. swap the text (and the colour with it); the new phrase rises in on the same wave
+          container.dataset.lang = target.lang;
+          node.lang = target.lang;
+          fill(node, target.text);
+          tween = gsap.fromTo(lettersOf(node), { yPercent: 42, opacity: 0 }, {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: { each: 0.03 },
+            clearProps: "transform,opacity",
+            onComplete: () => {
+              index = to;
+              morphing = false;
+              container.classList.remove("is-morphing");
+              schedule(HOLD);
+            },
+          });
         },
       });
     };
@@ -107,7 +150,8 @@ export function CodeSwitch() {
       watcher?.disconnect();
       container.classList.remove("is-morphing");
       container.dataset.lang = "en";
-      node.textContent = PHRASES[0].text;
+      node.lang = "en";
+      fill(node, PHRASES[0].text);
       if (heading) heading.style.minHeight = "";
     };
   }, []);
@@ -115,7 +159,7 @@ export function CodeSwitch() {
   return (
     <span className="code-switch" data-lang="en" ref={wrap}>
       <span className="sr-only">{PHRASES[0].text}</span>
-      <span aria-hidden="true" ref={visible}>{PHRASES[0].text}</span>
+      <span aria-hidden="true" lang="en" ref={visible}><Letters text={PHRASES[0].text} /></span>
     </span>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AnimatedVoiceOrb } from "./animated-voice-orb";
 import { CodeSwitch } from "./code-switch";
 import { Comparison } from "./comparison";
+import { HeroNetwork } from "@/components/features/network/network-background";
 import { SectionAmbience } from "./motion/ambient-background";
 import { ScreenshotGallery } from "./screenshot-gallery";
 import { VoicePreview } from "./voice-preview";
@@ -24,6 +25,8 @@ const useCases = ["Customer care", "Travel and stays", "Appointments", "Public s
 export function LandingPage() {
   return (
     <main id="main-content" className="marketing-main">
+      <div className="hero-stage">
+      <HeroNetwork />
       <section className="hero section-wrap">
         <SectionAmbience kind="hero" />
         <div className="hero-copy">
@@ -37,6 +40,7 @@ export function LandingPage() {
         </div>
         <AnimatedVoiceOrb />
       </section>
+      </div>
 
       <section className="signal-section" id="product" data-sequence>
         <SectionAmbience kind="signal" />

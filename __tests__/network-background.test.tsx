@@ -1,6 +1,6 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, expect, test } from "vitest";
-import { NetworkBackground, modeForPath } from "@/components/features/dashboard/network-background";
+import { HeroNetwork, NetworkBackground, modeForPath } from "@/components/features/network/network-background";
 
 afterEach(cleanup);
 
@@ -21,4 +21,13 @@ test("renders a decorative canvas and survives environments without a 2D context
   expect(canvas?.getAttribute("aria-hidden")).toBe("true");
   expect(canvas?.getAttribute("data-mode")).toBe("signal");
   expect(canvas?.classList.contains("network-bg")).toBe(true);
+});
+
+test("the hero variant is a decorative canvas of its own class, not the fixed dashboard layer", () => {
+  const { container } = render(<HeroNetwork />);
+  const canvas = container.querySelector("canvas");
+
+  expect(canvas?.getAttribute("aria-hidden")).toBe("true");
+  expect(canvas?.classList.contains("hero-network")).toBe(true);
+  expect(canvas?.classList.contains("network-bg")).toBe(false);
 });
