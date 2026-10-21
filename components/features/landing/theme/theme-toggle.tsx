@@ -41,7 +41,7 @@ export function ThemeToggle() {
 
     if (!doc.startViewTransition || reduced) {
       // Fallback: plain colour fade.
-      const root = document.querySelector(".marketing-root, .dash-root");
+      const root = document.querySelector(".marketing-root, .dash-root, .call-root");
       root?.classList.add("theme-transition");
       apply();
       window.setTimeout(() => root?.classList.remove("theme-transition"), 500);

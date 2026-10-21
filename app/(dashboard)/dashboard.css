@@ -1,6 +1,6 @@
 /* Workspace (agents) surfaces. Plain CSS, scoped by class; reuses the global tokens (--ink, --line, --accent...). */
 
-:root { --ease-expo: cubic-bezier(.22, 1, .36, 1); }
+/* --ease-expo is an alias of --ease-out in app/tokens.css. */
 @property --n { syntax: "<integer>"; initial-value: 0; inherits: false; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -11,7 +11,8 @@ kbd { font: 500 10px var(--mono); }
 /* A fixed, decorative canvas behind everything. The header is already sticky above it (z-index 20); the
    page and footer sit one layer up so no pointer event or text ever lands on the canvas. */
 .network-bg { position: fixed; z-index: 0; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
-.dash-root > main, .dash-root > footer { position: relative; z-index: 1; }
+.dash-root > main, .dash-root > footer, .dash-root > .dash-content { position: relative; z-index: 1; }
+.dash-content:focus { outline: none; }
 @media print { .network-bg { display: none; } }
 
 /* ---------- Header ---------- */
@@ -56,7 +57,7 @@ main.page-shell.dash-main { width: min(100% - 48px, 1200px); padding-top: 48px; 
 .dash-search { position: relative; flex: 1 1 260px; max-width: 420px; }
 .dash-search svg { position: absolute; top: 50%; left: 13px; width: 16px; height: 16px; fill: none; stroke: #85877f; stroke-width: 1.8; stroke-linecap: round; transform: translateY(-50%); pointer-events: none; }
 .dash-search input { padding-left: 38px; padding-right: 36px; background: var(--surface); border-color: #cfcfc7; border-radius: 4px; transition: border-color .2s ease, box-shadow .25s ease; }
-.dash-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgb(255 98 76 / 14%); }
+.dash-search input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-color: var(--accent); box-shadow: 0 0 0 4px rgb(255 98 76 / 14%); }
 .dash-search kbd { position: absolute; top: 50%; right: 11px; padding: 2px 6px; color: #85877f; background: #efeee6; border-radius: 3px; transform: translateY(-50%); pointer-events: none; }
 .dash-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { min-height: 38px; display: inline-flex; align-items: center; gap: 8px; padding: 0 13px; color: #5d605b; background: transparent; border: 1px solid #cfcfc7; border-radius: 999px; cursor: pointer; font: 600 12px var(--sans); transition: background .2s ease, color .2s ease, border-color .2s ease; }
@@ -186,7 +187,7 @@ main.page-shell.dash-main { width: min(100% - 48px, 1200px); padding-top: 48px; 
 @keyframes fade-in { from { opacity: 0; } }
 .palette-search { display: flex; align-items: center; gap: 12px; padding: 4px 16px; border-bottom: 1px solid var(--line); }
 .palette-search input { min-height: 54px; padding: 0; border: 0; background: transparent; font-size: 16px; }
-.palette-search input:focus { outline: none; }
+.palette-search input:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .palette-search kbd, .palette-foot kbd { padding: 3px 6px; color: #7b7d77; background: #efeee6; border-radius: 3px; }
 .palette-list { flex: 1; margin: 0; padding: 6px 8px 8px; overflow-y: auto; list-style: none; }
 .palette-group { margin: 12px 8px 4px; color: #8a8c86; font: 500 9px var(--mono); letter-spacing: .09em; text-transform: uppercase; }
@@ -297,7 +298,7 @@ main.page-shell.dash-main { width: min(100% - 48px, 1200px); padding-top: 48px; 
 .form-section > h2 { margin: 0; color: #85877f; font: 500 10px var(--mono); letter-spacing: .09em; text-transform: uppercase; }
 .agent-form label:not(.check-option) { display: grid; gap: 7px; font-weight: 600; font-size: 14px; }
 .agent-form input:not([type="checkbox"]), .agent-form textarea, .agent-form select { background: var(--surface); border-color: #cfcfc7; border-radius: 4px; transition: border-color .2s ease, box-shadow .25s ease; }
-.agent-form input:not([type="checkbox"]):focus, .agent-form textarea:focus, .agent-form select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgb(255 98 76 / 14%); }
+.agent-form input:not([type="checkbox"]):focus, .agent-form textarea:focus, .agent-form select:focus { outline: 2px solid var(--focus); outline-offset: 2px; border-color: var(--accent); box-shadow: 0 0 0 4px rgb(255 98 76 / 14%); }
 .template-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .template-row > span { color: #85877f; font: 11px var(--mono); }
 .agent-form fieldset { border-radius: 6px; border-color: var(--line); }

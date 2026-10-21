@@ -1,7 +1,7 @@
 /* Marketing motion system: ambience, pinned showcase, numbers, comparison, gallery.
    Authoring rules: animate transform/opacity only; decorative layers are aria-hidden and pointer-events: none. */
 
-:root { --ease-expo: cubic-bezier(.22, 1, .36, 1); }
+/* --ease-expo is an alias of --ease-out in app/tokens.css. */
 
 /* Smooth scroll (Lenis) */
 html.lenis, html.lenis body { height: auto; }
@@ -381,3 +381,18 @@ html.lenis, html.lenis body { height: auto; }
   .marketing-footer > p { display: none; }
   .footer-copy { justify-self: start; grid-column: 1 / -1; font-family: var(--sans); }
 }
+
+.header-start { min-height: 42px; display: inline-flex; align-items: center; padding: 0 16px; color: var(--on-primary); background: var(--primary); border-radius: var(--radius-control); font: 600 13px var(--display); text-decoration: none; white-space: nowrap; transition: background var(--dur-fast) var(--ease-standard); }
+.header-start:hover { background: var(--primary-hover); }
+@media (max-width: 720px) { .header-access-secondary { display: none; } }
+
+/* Restored hero (product-owner decision, review round 1): the hero is kept exactly as it was before the
+   redesign. The global token move (app/tokens.css) changed three things it uses, so pin their old values
+   here, for the hero only:
+   - radii were 3 / 6 px (now 4 / 8 px);
+   - light --accent-dark was #e54b38 (now an alias of --accent-text, #b5372a);
+   - in light, --ink-3 used to be a self-reference (invalid), so the code-switch line inherited the
+     headline ink. Dark already pins --ink-3 and --accent-dark in theme-dark.css. */
+.hero-stage { --radius-control: 3px; --radius-window: 6px; }
+html:not([data-vl-theme="dark"]) .hero-stage { --accent-dark: #e54b38; }
+html:not([data-vl-theme="dark"]) .hero h1 em { color: inherit; }

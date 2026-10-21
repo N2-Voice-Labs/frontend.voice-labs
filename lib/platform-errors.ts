@@ -33,7 +33,27 @@ const messages: Record<string, string> = {
   agent_not_found: "That agent no longer exists.",
   agent_template_not_found: "That template is not available.",
   agent_not_enabled: "The agent must be enabled before it can take calls.",
+  // Two-person calls (UX spec §4.1–4.2).
+  invalid_interpreter_config: "This language pair can’t be interpreted with the current settings.",
+  participants_require_cascaded_interpreter: "This language pair can’t be interpreted with the current settings.",
+  invalid_participant_language: "This language pair can’t be interpreted with the current settings.",
+  participant_languages_must_differ: "The two people need to speak different languages.",
+  participants_not_enabled: "This call can’t take a second person.",
+  selected_voice_unavailable: "That voice isn’t ready. Try again with the interpreter’s voice.",
+  session_full: "Someone has already been invited to this call.",
+  session_not_active: "This call has already ended.",
+  voice_session_not_found: "This call no longer exists.",
+  runtime_unavailable: "The interpreter isn’t responding right now. Try again in a moment.",
+  runtime_auth_not_configured: "The interpreter isn’t set up on this server yet.",
+  authentication_required: "This Voice Labs server needs a sign-in key, and calls can’t start without one.",
+  forbidden: "This link or session no longer has access to the call.",
 };
+
+/** The Platform's machine-readable code (FastAPI `detail`), when the error carries one. */
+export function errorCode(cause: unknown): string | null {
+  if (!(cause instanceof Error)) return null;
+  return /^[a-z][a-z0-9_]+$/.test(cause.message) ? cause.message : null;
+}
 
 export function describeError(cause: unknown, fallback = "Something went wrong. Try again."): string {
   if (!(cause instanceof Error)) return fallback;

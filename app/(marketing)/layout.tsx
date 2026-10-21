@@ -19,12 +19,13 @@ export default function MarketingLayout({ children }: Readonly<{ children: React
       </nav>
       <div className="header-actions">
         <ThemeToggle />
-        <Link className="header-access" href="/agents">Platform access <span aria-hidden="true">↗</span></Link>
+        <Link className="header-access header-access-secondary" href="/agents">Workspace</Link>
+        <Link className="header-start" href="/call">Start a call</Link>
         <MobileNavigation />
       </div>
     </header>
     {children}
-    <footer className="marketing-footer"><Link className="marketing-brand footer-brand" href="/"><span className="brand-glyph">v<span>.</span></span><span>voice labs</span></Link><p>Make room for more voices.</p><div><a href="#product">Product</a><a href="#platform">How it works</a><Link href="/agents">Open platform</Link></div><span className="footer-copy">© 2026 Voice Labs</span></footer>
+    <footer className="marketing-footer"><Link className="marketing-brand footer-brand" href="/"><span className="brand-glyph">v<span>.</span></span><span>voice labs</span></Link><p>Make room for more voices.</p><div><a href="#product">Product</a><a href="#platform">How it works</a><Link href="/call">Start a call</Link><Link href="/agents">Open workspace</Link></div><span className="footer-copy">© 2026 Voice Labs</span></footer>
     <LandingMotion />
   </div>;
 }

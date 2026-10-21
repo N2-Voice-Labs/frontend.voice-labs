@@ -9,6 +9,7 @@ export const OPEN_PALETTE_EVENT = "voice-labs:open-palette";
 type Item = { id: string; label: string; hint: string; group: string; href: string };
 
 const goTo: Item[] = [
+  { id: "call", label: "Start a call", hint: "Call", group: "Go to", href: "/call" },
   { id: "new", label: "New agent", hint: "Create", group: "Go to", href: "/agents/new" },
   { id: "agents", label: "Agents", hint: "Page", group: "Go to", href: "/agents" },
   { id: "voices", label: "Voices", hint: "Page", group: "Go to", href: "/voices" },
@@ -18,7 +19,7 @@ const goTo: Item[] = [
   { id: "campaigns", label: "Campaigns", hint: "Page", group: "Go to", href: "/campaigns" },
   { id: "knowledge", label: "Knowledge", hint: "Page", group: "Go to", href: "/knowledge" },
   { id: "tools", label: "Tools", hint: "Page", group: "Go to", href: "/tools" },
-  { id: "analytics", label: "Analytics", hint: "Page", group: "Go to", href: "/analytics" },
+  { id: "analytics", label: "Usage", hint: "Analytics", group: "Go to", href: "/analytics" },
   { id: "site", label: "Home", hint: "Public site", group: "Go to", href: "/" },
 ];
 
