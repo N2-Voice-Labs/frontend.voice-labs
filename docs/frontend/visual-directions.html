@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voice Labs Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Manrope:wght@500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,400&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Page chrome tokens */
+:root {
+  color-scheme: light;
+  --page-bg: #fbfbf8; --page-card: #ffffff; --page-text: #1d2022; --page-muted: #5a5d58; --page-border: #dfdfd8; --page-focus: #283ee8; --page-rec: #0f6e6a;
+  --f-ui: "DM Sans", "Manrope", "Noto Sans KR", system-ui, sans-serif;
+  --f-mono-ui: "DM Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { color-scheme: dark; --page-bg: #0f1112; --page-card: #171a1b; --page-text: #ecebe4; --page-muted: #aeb1aa; --page-border: #2e3435; --page-focus: #8f9bff; --page-rec: #4fc6bd; }
+}
+:root[data-theme="dark"] { color-scheme: dark; --page-bg: #0f1112; --page-card: #171a1b; --page-text: #ecebe4; --page-muted: #aeb1aa; --page-border: #2e3435; --page-focus: #8f9bff; --page-rec: #4fc6bd; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page-bg); color: var(--page-text); font: 15px/1.55 var(--f-ui); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+p { margin: 0; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--page-focus); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 8px; top: -60px; padding: 8px 12px; background: var(--page-text); color: var(--page-bg); border-radius: 4px; z-index: 5; }
+.skip:focus { top: 8px; }
+:lang(ko) { word-break: keep-all; letter-spacing: 0; }
+
+.page-head, main { width: min(100% - 32px, 1360px); margin-inline: auto; }
+.page-head { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: flex-end; justify-content: space-between; padding: 40px 0 28px; }
+.page-head > div { max-width: 760px; min-width: 0; }
+.kicker { font: 500 12px/1.4 var(--f-mono-ui); color: var(--page-muted); margin-bottom: 10px; }
+h1 { margin: 0; font: 600 clamp(26px, 4vw, 38px)/1.12 "Manrope", var(--f-ui); letter-spacing: -.025em; text-wrap: balance; }
+.lede { margin-top: 12px; color: var(--page-muted); max-width: 68ch; text-wrap: pretty; }
+.theme-btn { min-height: 40px; padding: 0 14px; border: 1px solid var(--page-border); border-radius: 4px; background: var(--page-card); cursor: pointer; font-size: 13px; }
+
+.dirs { display: grid; gap: 24px; grid-template-columns: 1fr; }
+@media (min-width: 1100px) { .dirs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 720px) and (max-width: 1099.98px) { .dirs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.dir { min-width: 0; padding: 16px; background: var(--page-card); border: 1px solid var(--page-border); border-radius: 8px; display: flex; flex-direction: column; gap: 12px; }
+.dir-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.dir h2 { margin: 0; font: 600 18px/1.3 "Manrope", var(--f-ui); letter-spacing: -.015em; display: flex; align-items: center; gap: 10px; }
+.dir-letter { display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px; border: 1px solid var(--page-border); border-radius: 999px; font: 500 12px/1 var(--f-mono-ui); }
+.dir-line, .dir-risk { color: var(--page-muted); font-size: 14px; line-height: 1.5; }
+.dir-risk { font-size: 13px; }
+.basis { font: 500 12px/1 var(--f-mono-ui); color: var(--page-muted); border: 1px dashed var(--page-border); border-radius: 999px; padding: 6px 10px; }
+.badge { font: 600 12px/1 var(--f-ui); color: var(--page-bg); background: var(--page-rec); border-radius: 999px; padding: 7px 12px; }
+.rec { margin-top: 24px; border: 2px solid var(--page-rec); }
+.rec-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1100px) { .rec-grid { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } }
+.rec-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* ---------- Direction tokens ---------- */
+.dir-a { --bg: #f6f5ef; --surface: #fffefa; --surface-2: #efeee6; --text: #1d2022; --text-2: #5a5d58; --muted: #6b6d69; --border: #dfdfd8; --border-c: #8d8f88; --idle: #8d8f88;
+  --self: #1d2022; --self-tint: transparent; --other: #1d2022; --other-tint: transparent; --accent-ui: #c43d2d;
+  --interp: #1d2022; --interp-ink: #1d2022; --interp-tint: transparent; --danger: #b42318; --on-danger: #fff; --warn: #8a5300; --ok: #1b6e36;
+  --f-display: "Manrope", "Noto Sans KR", sans-serif; --f-body: "DM Sans", "Manrope", "Noto Sans KR", sans-serif; --f-mono: "DM Mono", ui-monospace, monospace;
+  --r-card: 4px; --r-ctl: 3px; }
+.dir-b { --bg: #f2f3f1; --surface: #ffffff; --surface-2: #e9ebe8; --text: #1a1f21; --text-2: #5b6461; --muted: #5b6461; --border: #d5d9d6; --border-c: #8a928f; --idle: #8a928f;
+  --self: #4e5a00; --self-tint: transparent; --other: #4e5a00; --other-tint: transparent;
+  --interp: #007f99; --interp-ink: #007f99; --interp-tint: transparent; --danger: #c03a2b; --on-danger: #fff; --warn: #8a5300; --ok: #1b6e36; --seg-on: #4e5a00;
+  --f-display: "Manrope", "Noto Sans KR", sans-serif; --f-body: "DM Sans", "Noto Sans KR", sans-serif; --f-mono: "DM Mono", "Noto Sans KR", ui-monospace, monospace;
+  --r-card: 2px; --r-ctl: 2px; }
+.dir-c { --bg: #f7f1e8; --surface: #fffaf3; --surface-2: #f1e8dc; --text: #2a211c; --text-2: #6e6159; --muted: #6e6159; --border: #e7dccd; --border-c: #9c8d81; --idle: #9c8d81;
+  --self: #0f6e6a; --self-tint: #e6f1ef; --other: #9b3a6e; --other-tint: #f4e6ee;
+  --interp: #d9f455; --interp-ink: #566300; --interp-tint: #eef7c4; --danger: #b42318; --on-danger: #fff; --warn: #8a5300; --ok: #1b6e36;
+  --f-display: "Newsreader", "Noto Sans KR", Georgia, serif; --f-body: "DM Sans", "Noto Sans KR", sans-serif; --f-mono: "DM Mono", ui-monospace, monospace;
+  --r-card: 16px; --r-ctl: 999px; }
+.dir-r { --bg: #f6f5ef; --surface: #fffefa; --surface-2: #efeee6; --text: #1d2022; --text-2: #5a5d58; --muted: #6b6d69; --border: #dfdfd8; --border-c: #8d8f88; --idle: #8d8f88;
+  --self: #0f6e6a; --self-tint: #e6f1ef; --other: #9b3a6e; --other-tint: #f4e6ee;
+  --interp: #d9f455; --interp-ink: #566300; --interp-tint: #eef7c4; --danger: #b42318; --on-danger: #fff; --warn: #8a5300; --ok: #1b6e36;
+  --f-display: "Manrope", "Noto Sans KR", sans-serif; --f-body: "DM Sans", "Manrope", "Noto Sans KR", sans-serif; --f-mono: "DM Mono", ui-monospace, monospace;
+  --r-card: 6px; --r-ctl: 4px; }
+
+/* Dark variants: media query (auto) and explicit attribute */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .dir-a { --bg: #121516; --surface: #1a1e1f; --surface-2: #1f2425; --text: #ecebe4; --text-2: #aeb1aa; --muted: #9a9d96; --border: #2e3435; --border-c: #6b7374; --idle: #6b7374; --self: #ecebe4; --other: #ecebe4; --accent-ui: #ff7a66; --interp: #ecebe4; --interp-ink: #ecebe4; --danger: #c4362b; --warn: #f2b33d; --ok: #6fd58f; }
+  :root:not([data-theme="light"]) .dir-b { --bg: #0e1112; --surface: #161a1b; --surface-2: #1c2122; --text: #e6e8e3; --text-2: #8b928f; --muted: #8b928f; --border: #262c2d; --border-c: #4f5859; --idle: #4f5859; --self: #d9f455; --other: #d9f455; --seg-on: #d9f455; --interp: #5fd4e8; --interp-ink: #5fd4e8; --danger: #c4362b; --warn: #f2b33d; --ok: #6fd58f; }
+  :root:not([data-theme="light"]) .dir-c { --bg: #1a1512; --surface: #241d19; --surface-2: #2c241f; --text: #efe6dc; --text-2: #a8998e; --muted: #a8998e; --border: #3a302a; --border-c: #75685e; --idle: #75685e; --self: #4fc6bd; --self-tint: #163331; --other: #e48bbd; --other-tint: #3a2030; --interp-ink: #d9f455; --interp-tint: #2a3110; --danger: #c4362b; --warn: #f2b33d; --ok: #6fd58f; }
+  :root:not([data-theme="light"]) .dir-r { --bg: #121516; --surface: #1a1e1f; --surface-2: #1f2425; --text: #ecebe4; --text-2: #aeb1aa; --muted: #9a9d96; --border: #2e3435; --border-c: #6b7374; --idle: #6b7374; --self: #4fc6bd; --self-tint: #163331; --other: #e48bbd; --other-tint: #3a2030; --interp-ink: #d9f455; --interp-tint: #2a3110; --danger: #c4362b; --warn: #f2b33d; --ok: #6fd58f; }
+}
+:root[data-theme="dark"] .dir-a { --bg: #121516; --surface: #1a1e1f; --surface-2: #1f2425; --text: #ecebe4; --text-2: #aeb1aa; --muted: #9a9d96; --border: #2e3435; --border-c: #6b7374; --idle: #6b7374; --self: #ecebe4; --other: #ecebe4; --accent-ui: #ff7a66; --interp: #ecebe4; --interp-ink: #ecebe4; --danger: #c4362b; --warn: #f2b33d; --ok: #6fd58f; }
+:root[data-theme="dark"] .dir-b { --bg: #0e1112; --surface: #161a1b; --surface-2: #1c2122; --text: #e6e8e3; --text-2: #8b928f; --muted: #8b928f; --border: #262c2d; --border-c: #4f5859; --idle: #4f5859; --self: #d9f455; --other: #d9f455; --seg-on: #d9f455; --interp: #5fd4e8; --interp-ink: #5fd4e8; --danger: #c4362b; --warn: #f2b33d; --ok: #6fd58f; }
+:root[data-theme="dark"] .dir-c { --bg: #1a1512; --surface: #241d19; --surface-2: #2c241f; --text: #efe6dc; --text-2: #a8998e; --muted: #a8998e; --border: #3a302a; --border-c: #75685e; --idle: #75685e; --self: #4fc6bd; --self-tint: #163331; --other: #e48bbd; --other-tint: #3a2030; --interp-ink: #d9f455; --interp-tint: #2a3110; --danger: #c4362b; --warn: #f2b33d; --ok: #6fd58f; }
+:root[data-theme="dark"] .dir-r { --bg: #121516; --surface: #1a1e1f; --surface-2: #1f2425; --text: #ecebe4; --text-2: #aeb1aa; --muted: #9a9d96; --border: #2e3435; --border-c: #6b7374; --idle: #6b7374; --self: #4fc6bd; --self-tint: #163331; --other: #e48bbd; --other-tint: #3a2030; --interp-ink: #d9f455; --interp-tint: #2a3110; --danger: #c4362b; --warn: #f2b33d; --ok: #6fd58f; }
+
+/* ---------- Mock (shared) ---------- */
+.mock { container-type: inline-size; min-width: 0; background: var(--bg); color: var(--text); font-family: var(--f-body); border: 1px solid var(--border); border-radius: calc(var(--r-card) + 4px); overflow: hidden; display: flex; flex-direction: column; }
+.m-head { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--surface); min-width: 0; }
+.m-pair { font: 600 15px/1.3 var(--f-display); letter-spacing: -.01em; flex: 1; min-width: 0; }
+.m-swap { color: var(--text-2); }
+.m-time { font: 500 12px/1 var(--f-mono); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.m-conn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+.q { display: inline-flex; align-items: flex-end; gap: 2px; height: 10px; }
+.q i { width: 3px; background: var(--ok); border-radius: 1px; }
+.q i:nth-child(1) { height: 4px; } .q i:nth-child(2) { height: 7px; } .q i:nth-child(3) { height: 10px; }
+
+.m-body { display: grid; gap: 0; min-width: 0; }
+.m-people { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "self other" "bridge bridge"; gap: 10px; padding: 14px; min-width: 0; }
+.p-self { grid-area: self; --me: var(--self); --me-tint: var(--self-tint); }
+.p-other { grid-area: other; --me: var(--other); --me-tint: var(--other-tint); }
+.bridge { grid-area: bridge; }
+
+.p { --ring: var(--idle); position: relative; min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); transition: background-color .18s ease; }
+.p.is-speaking { --ring: var(--me); }
+.av { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 50%; font: 600 16px/1 var(--f-display); color: var(--me); background: var(--surface-2); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ring); margin: 2px; }
+.p.is-speaking .av { box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px var(--ring); }
+.p-txt { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.p-name { font: 600 17px/1.2 var(--f-display); letter-spacing: -.015em; color: var(--text); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.you { font: 500 11.5px/1 var(--f-mono); color: var(--me); border: 1px solid currentColor; border-radius: 999px; padding: 3px 6px; letter-spacing: .02em; }
+.p-lang { font-size: 13px; line-height: 1.45; color: var(--text-2); overflow-wrap: anywhere; }
+.p-lang b { color: var(--text); font-weight: 600; }
+.code { font: 500 11.5px/1 var(--f-mono); padding: 2px 4px; border: 1px solid var(--border-c); border-radius: 3px; color: var(--text-2); vertical-align: 1px; }
+.hears { color: var(--muted); }
+.p-state { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); margin-top: 2px; }
+.p.is-speaking .st { color: var(--me); }
+
+.meter { display: inline-flex; align-items: center; gap: 2px; height: 16px; }
+.meter i { width: 3px; height: 16px; border-radius: 2px; background: var(--ring); transform: scaleY(.18); transform-origin: center; }
+.p.is-speaking .meter i { animation: lvl .62s ease-in-out infinite alternate; }
+.p.is-speaking .meter i:nth-child(1) { animation-duration: .54s; --hi: .55; }
+.p.is-speaking .meter i:nth-child(2) { animation-duration: .7s; animation-delay: -.2s; --hi: .85; }
+.p.is-speaking .meter i:nth-child(3) { animation-duration: .48s; animation-delay: -.1s; --hi: 1; }
+.p.is-speaking .meter i:nth-child(4) { animation-duration: .66s; animation-delay: -.3s; --hi: .8; }
+.p.is-speaking .meter i:nth-child(5) { animation-duration: .58s; animation-delay: -.15s; --hi: .5; }
+@keyframes lvl { from { transform: scaleY(.2); } to { transform: scaleY(var(--hi, .8)); } }
+.segs { display: none; }
+
+/* Bridge */
+.bridge { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 2px 4px 0; min-width: 0; }
+.b-track { position: relative; width: 100%; height: 12px; overflow: hidden; }
+.b-line { position: absolute; left: 6px; right: 0; top: 5px; height: 2px; background: var(--interp-ink); border-radius: 2px; }
+.b-arrow { position: absolute; left: 0; top: 1px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 8px solid var(--interp-ink); }
+.b-packet { position: absolute; inset: 0; animation: run 1.4s linear infinite; }
+.b-packet::before { content: ""; position: absolute; left: 10px; top: 3px; width: 18px; height: 6px; border-radius: 3px; background: var(--interp); box-shadow: 0 0 0 1px var(--interp-ink); }
+@keyframes run { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.b-label { font: 500 12px/1.3 var(--f-mono); color: var(--interp-ink); text-align: center; padding: 4px 8px; border-radius: 999px; background: var(--interp-tint); }
+.b-tick, .b-readout { display: none; }
+
+/* Transcript */
+.m-log { list-style: none; margin: 0; padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.t { position: relative; padding: 2px 0 2px 12px; border-left: 3px solid var(--who); min-width: 0; }
+.t-other { --who: var(--other); }
+.t-self { --who: var(--self); }
+.t-meta { display: flex; gap: 8px; align-items: baseline; margin-bottom: 2px; }
+.t-who { font-size: 13px; font-weight: 600; color: var(--who); }
+.t-time { font: 400 12px/1 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.t-pri { font-size: 16px; line-height: 1.55; color: var(--text); overflow-wrap: anywhere; }
+.t-sec { font-size: 14px; line-height: 1.55; color: var(--text-2); overflow-wrap: anywhere; }
+.t-tag { display: block; font: 500 11.5px/1.4 var(--f-mono); color: var(--muted); }
+.t-wait { font: 500 12px/1.4 var(--f-mono); color: var(--interp-ink); }
+.t-new { animation: tin .24s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes tin { from { opacity: 0; transform: translateY(6px); } }
+
+/* Dock */
+.m-dock { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); margin-top: auto; min-width: 0; }
+.d-btn { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 52px; min-height: 52px; padding: 6px 8px; border: 1px solid var(--border-c); background: var(--surface); color: var(--text); border-radius: var(--r-ctl); cursor: pointer; font-size: 12px; font-weight: 500; }
+.d-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.d-btn:hover { background: var(--surface-2); }
+.d-end { margin-left: auto; background: var(--danger); color: var(--on-danger); border-color: var(--danger); }
+.d-end:hover { background: var(--danger); filter: brightness(1.08); }
+.d-end svg { fill: currentColor; stroke: none; }
+
+/* Narrow container = mobile pattern: strip-like cards, 3-slot bar (More · Mic · End) */
+@container (max-width: 439.98px) {
+  .d-btn:not(.d-mic):not(.d-end):not(:nth-child(4)) { display: none; }
+  .m-dock { justify-content: space-between; }
+  .m-dock .d-btn:nth-child(4) { order: 1; }
+  .d-mic { order: 2; width: 64px; height: 64px; min-height: 64px; border-radius: 50%; }
+  .d-end { order: 3; margin-left: 0; }
+  .m-conn-w { display: none; }
+}
+/* Wide container: desktop layout with bridge between cards and transcript beside */
+@container (min-width: 560px) {
+  .m-people { grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); grid-template-areas: "self bridge other"; align-items: center; }
+}
+@container (min-width: 760px) {
+  .m-body { grid-template-columns: minmax(0, 1fr) 300px; }
+  .m-people { align-self: center; padding: 24px; }
+  .m-log { border-left: 1px solid var(--border); padding: 14px; background: var(--surface); }
+  .p { padding: 16px; }
+  .av { width: 56px; height: 56px; font-size: 20px; }
+  .p-name { font-size: 20px; }
+}
+
+/* ---------- A: Premium Communication ---------- */
+.dir-a .p.is-speaking { --ring: var(--accent-ui); }
+.dir-a .p.is-speaking .st { color: var(--accent-ui); }
+.dir-a .b-line { height: 1px; top: 5.5px; background: var(--text-2); }
+.dir-a .b-arrow { border-right-color: var(--text-2); }
+.dir-a .b-packet::before { width: 14px; height: 2px; top: 5px; background: var(--accent-ui); box-shadow: none; }
+.dir-a .b-label { background: transparent; color: var(--text-2); }
+.dir-a .t { border-left: 0; padding-left: 0; }
+.dir-a .t-who { color: var(--text); font-family: var(--f-mono); font-weight: 500; font-size: 12px; }
+.dir-a .t-wait { color: var(--text-2); }
+.dir-a .you { color: var(--text-2); }
+.dir-a .m-log { gap: 16px; }
+
+/* ---------- B: Technical Realtime ---------- */
+.dir-b .meter { display: none; }
+.dir-b .segs { display: inline-flex; gap: 2px; }
+.dir-b .segs i { width: 5px; height: 10px; background: var(--border); border-radius: 1px; }
+.dir-b .p.is-speaking .segs i:nth-child(-n+5) { background: var(--seg-on); }
+.dir-b .p.is-speaking .segs i:nth-child(6), .dir-b .p.is-speaking .segs i:nth-child(7) { animation: seg .3s steps(2, jump-none) infinite alternate; }
+.dir-b .p.is-speaking .segs i:nth-child(7) { animation-delay: -.15s; }
+@keyframes seg { from { background: var(--border); } to { background: var(--seg-on); } }
+.dir-b .p-state, .dir-b .p-lang, .dir-b .b-label, .dir-b .t-who { font-family: var(--f-mono); }
+.dir-b .p-state { font-size: 12px; text-transform: lowercase; }
+.dir-b .p.is-speaking { border-color: var(--seg-on); }
+.dir-b .av { border-radius: 2px; box-shadow: none; border: 1px solid var(--ring); }
+.dir-b .p.is-speaking .av { box-shadow: none; border-width: 2px; }
+.dir-b .m-people { background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 24px 24px; background-position: -1px -1px; }
+.dir-b .b-line { background: repeating-linear-gradient(90deg, var(--interp-ink) 0 3px, transparent 3px 7px); }
+.dir-b .b-tick { display: block; position: absolute; top: 1px; width: 1px; height: 10px; background: var(--text-2); }
+.dir-b .t1 { left: 25%; } .dir-b .t2 { left: 50%; } .dir-b .t3 { left: 75%; }
+.dir-b .b-packet::before { width: 6px; height: 6px; border-radius: 0; box-shadow: 14px 0 0 var(--interp), 28px 0 0 var(--interp); background: var(--interp); }
+.dir-b .b-label { background: transparent; text-transform: lowercase; }
+.dir-b .b-readout { display: block; font: 500 12px/1 var(--f-mono); color: var(--text-2); }
+.dir-b .t { border-left-width: 1px; border-left-color: var(--border-c); display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 8px; padding-left: 8px; }
+.dir-b .t-meta { grid-column: 1 / -1; }
+.dir-b .t > p:not(.t-meta) { grid-column: 2; }
+.dir-b .t-who { color: var(--text); font-size: 12px; font-weight: 500; }
+.dir-b .m-pair { font-family: var(--f-mono); font-weight: 500; font-size: 13px; }
+
+/* ---------- C: Human + AI ---------- */
+.dir-c .p.is-speaking { background: var(--me-tint); }
+.dir-c .av { background: var(--me-tint); }
+.dir-c .p-name { font-weight: 600; font-size: 19px; }
+.dir-c .m-pair { font-size: 17px; }
+.dir-c .b-line { height: 3px; top: 4.5px; border-radius: 3px; }
+.dir-c .b-packet::before { width: 10px; height: 10px; top: 1px; border-radius: 50%; }
+.dir-c .t-self { margin-left: 24px; }
+.dir-c .t { border-left-width: 0; padding: 10px 12px; background: var(--surface); border-radius: 14px; box-shadow: inset 3px 0 0 var(--who); }
+.dir-c .t-other .t-pri { font-family: var(--f-display); font-size: 18px; line-height: 1.45; }
+.dir-c .you { border-radius: 999px; }
+
+/* ---------- A×C: Recommended ---------- */
+.dir-r .p { border-top: 3px solid var(--me); }
+.dir-r .p.is-speaking { background: var(--me-tint); box-shadow: 0 1px 2px rgb(29 32 34 / 8%); }
+.dir-r .av { background: var(--me-tint); }
+.dir-r .b-track { height: 14px; }
+.dir-r .b-line { top: 5px; height: 3px; }
+.dir-r .b-arrow { top: 1px; border-top-width: 6px; border-bottom-width: 6px; border-right-width: 9px; }
+
+/* Swatch / type strip */
+.strip { display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid var(--page-border); border-radius: 6px; }
+.sw { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 12px; font: 400 12px/1.3 var(--f-mono-ui); color: var(--page-muted); }
+.sw li { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.chip { width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--page-border); flex: none; }
+.ty-d { font-size: 22px; font-weight: 600; letter-spacing: -.015em; }
+.ty-b { font: 400 15px/1.6 "DM Sans", "Manrope", "Noto Sans KR", sans-serif; }
+.ty-m { font: 400 12px/1.4 var(--f-mono-ui); color: var(--page-muted); }
+.dir-a .ty-d { font-family: var(--f-display); }
+
+.ratios { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ratios caption { text-align: left; font-weight: 600; padding-bottom: 6px; }
+.ratios th, .ratios td { padding: 5px 0; border-bottom: 1px solid var(--page-border); text-align: left; font-weight: 400; }
+.ratios td { text-align: right; font-family: var(--f-mono-ui); font-variant-numeric: tabular-nums; }
+
+.score { margin: 32px 0 48px; }
+.score h2 { font: 600 20px/1.3 "Manrope", var(--f-ui); margin: 0 0 12px; }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--page-border); border-radius: 8px; background: var(--page-card); }
+.score table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 0; }
+.score th, .score td { padding: 8px 12px; border-bottom: 1px solid var(--page-border); text-align: left; }
+.score td { text-align: center; font-family: var(--f-mono-ui); font-variant-numeric: tabular-nums; width: 15%; }
+.score thead th { font-weight: 600; font-size: 13px; }
+.score td:last-child, .score th:last-child { color: var(--page-rec); font-weight: 600; }
+.score .tot th, .score .tot td { font-weight: 600; border-bottom: 0; }
+.score th[scope="row"] { font-weight: 400; }
+.foot { margin-top: 12px; color: var(--page-muted); font-size: 13px; }
+.foot code { font-family: var(--f-mono-ui); overflow-wrap: anywhere; }
+
+@media (max-width: 400px) {
+  .score th, .score td { padding: 8px 6px; }
+  .score { font-size: 13px; }
+}
+
+/* Reduced motion: no loops. Meters hold a static mid level; the bridge shows a filled arrow. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .p.is-speaking .meter i { transform: scaleY(var(--hi, .6)); }
+  .b-packet { display: none; }
+  .p.is-speaking .meter i:nth-child(1) { --hi: .55; } .p.is-speaking .meter i:nth-child(2) { --hi: .85; } .p.is-speaking .meter i:nth-child(3) { --hi: 1; } .p.is-speaking .meter i:nth-child(4) { --hi: .8; } .p.is-speaking .meter i:nth-child(5) { --hi: .5; }
+  .dir-b .p.is-speaking .segs i:nth-child(6) { background: var(--seg-on); }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#recommended">Skip to the recommendation</a>
+<header class="page-head">
+  <div>
+    <p class="kicker">Voice Labs · design directions · 21 Oct 2026</p>
+    <h1>Three ways to show two people talking across languages</h1>
+    <p class="lede">Every panel renders the same call from Sam's side. Sam speaks English and hears Korean; Ji-woo speaks Korean and hears English. Ji-woo is speaking and the interpreter is translating into English. Motion here is simulated. In the product, the meters and the bridge move only when LiveKit reports real audio.</p>
+  </div>
+  <button type="button" class="theme-btn" id="theme" aria-label="Switch colour theme">Theme: <span id="theme-v">auto</span></button>
+</header>
+
+<main>
+<section class="dirs" aria-label="Directions">
+
+  <section class="dir dir-a" aria-labelledby="h-a">
+    <div class="dir-head">
+      <h2 id="h-a"><span class="dir-letter">A</span>Premium Communication</h2>
+      <span class="basis">Basis of the recommendation</span>
+    </div>
+    <p class="dir-line">Quiet editorial room. Type and space carry hierarchy; a single coral accent.</p>
+    
+<div class="mock" aria-labelledby="a-cap">
+  <p class="sr-only" id="a-cap">Mock call screen: Sam (you, English) and Ji-woo (Korean). Ji-woo is speaking; the interpreter is translating into English for Sam.</p>
+  <div class="m-head">
+    <span class="m-pair">English <span class="m-swap" aria-hidden="true">↔</span> <span lang="ko">한국어</span></span>
+    <span class="m-time">04:12</span>
+    <span class="m-conn" title="Good connection"><span class="q" aria-hidden="true"><i></i><i></i><i></i></span><span class="m-conn-w">Good</span></span>
+  </div>
+  <div class="m-body">
+    <div class="m-people" aria-label="Participants">
+      <article class="p p-self" aria-label="Sam (you), speaks English, hears Korean, listening">
+        <span class="av" aria-hidden="true">S</span>
+        <div class="p-txt">
+          <p class="p-name">Sam <span class="you">You</span></p>
+          <p class="p-lang">Speaks <b>English</b> <span class="code">EN</span><br><span class="hears">hears Korean · <span lang="ko">한국어</span></span></p>
+          <p class="p-state"><span class="st">Listening</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></p>
+        </div>
+      </article>
+      <div class="bridge" role="img" aria-label="Translating Ji-woo into English for you">
+        <span class="b-track"><span class="b-line"></span><span class="b-arrow"></span><span class="b-packet"></span><span class="b-tick t1"></span><span class="b-tick t2"></span><span class="b-tick t3"></span></span>
+        <span class="b-label">Translating into English</span>
+        <span class="b-readout">≈ 1.2 s</span>
+      </div>
+      <article class="p p-other is-speaking" aria-label="Ji-woo, speaks Korean, hears English, speaking">
+        <span class="av" aria-hidden="true">J</span>
+        <div class="p-txt">
+          <p class="p-name">Ji-woo</p>
+          <p class="p-lang">Speaks <b lang="ko">한국어</b> <span class="code">KO</span><br><span class="hears">hears English</span></p>
+          <p class="p-state"><span class="st">Speaking</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></p>
+        </div>
+      </article>
+    </div>
+    <ol class="m-log" aria-label="Transcript">
+      <li class="t t-other">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:02</span></p>
+        <p class="t-sec" lang="ko">내일 회의 몇 시예요?</p>
+        <p class="t-pri"><span class="t-tag">Translated</span>What time is the meeting tomorrow?</p>
+      </li>
+      <li class="t t-self">
+        <p class="t-meta"><span class="t-who">You</span><span class="t-time">14:02</span></p>
+        <p class="t-pri">At ten, in the main office.</p>
+        <p class="t-sec"><span class="t-tag">What Ji-woo heard</span><span lang="ko">열 시에 본사에서요.</span></p>
+      </li>
+      <li class="t t-other">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:03</span></p>
+        <p class="t-sec" lang="ko">좋아요. 계약서도 가져갈까요?</p>
+        <p class="t-pri"><span class="t-tag">Translated</span>Great. Should I bring the contract too?</p>
+      </li>
+      <li class="t t-other t-pending">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:03</span></p>
+        <p class="t-sec" lang="ko">그리고 점심도 같이 해요.</p>
+        <p class="t-wait">Translating…</p>
+      </li>
+    </ol>
+  </div>
+  <div class="m-dock" role="toolbar" aria-label="Call controls (mock)">
+    <button type="button" class="d-btn d-mic" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Mute</span></button>
+    <button type="button" class="d-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg><span>Speaker</span></button>
+    <button type="button" class="d-btn d-tx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 11h14M5 16h9"/></svg><span>Transcript</span></button>
+    <button type="button" class="d-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>More</span></button>
+    <button type="button" class="d-btn d-end"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14.5c5-4.7 13-4.7 18 0l-2.4 2.6-3.4-1.6v-2.6a12 12 0 0 0-6.4 0v2.6l-3.4 1.6z"/></svg><span>End call</span></button>
+  </div>
+</div>
+    <div class="strip">
+    <ul class="sw"><li><span class="chip" style="background:var(--bg)"></span>bg</li><li><span class="chip" style="background:var(--surface)"></span>surface</li><li><span class="chip" style="background:var(--text)"></span>text</li><li><span class="chip" style="background:var(--self)"></span>you</li><li><span class="chip" style="background:var(--other)"></span>them</li><li><span class="chip" style="background:var(--interp)"></span>interpreter</li><li><span class="chip" style="background:var(--danger)"></span>end / error</li></ul>
+    <div class="ty"><p class="ty-d" style="font-family:var(--f-display)">Ji-woo <span lang="ko">지우</span></p><p class="ty-m">Manrope 600 · DM Sans · DM Mono</p></div>
+  </div>
+    <p class="dir-risk">Risk: one accent means both who and what, so the two people are told apart only by position.</p>
+  </section>
+  <section class="dir dir-b" aria-labelledby="h-b">
+    <div class="dir-head">
+      <h2 id="h-b"><span class="dir-letter">B</span>Technical Realtime</h2>
+      
+    </div>
+    <p class="dir-line">Instrument panel for live speech: segmented meters, a timed signal path, mono everywhere.</p>
+    
+<div class="mock" aria-labelledby="b-cap">
+  <p class="sr-only" id="b-cap">Mock call screen: Sam (you, English) and Ji-woo (Korean). Ji-woo is speaking; the interpreter is translating into English for Sam.</p>
+  <div class="m-head">
+    <span class="m-pair">English <span class="m-swap" aria-hidden="true">↔</span> <span lang="ko">한국어</span></span>
+    <span class="m-time">04:12</span>
+    <span class="m-conn" title="Good connection"><span class="q" aria-hidden="true"><i></i><i></i><i></i></span><span class="m-conn-w">Good</span></span>
+  </div>
+  <div class="m-body">
+    <div class="m-people" aria-label="Participants">
+      <article class="p p-self" aria-label="Sam (you), speaks English, hears Korean, listening">
+        <span class="av" aria-hidden="true">S</span>
+        <div class="p-txt">
+          <p class="p-name">Sam <span class="you">You</span></p>
+          <p class="p-lang">Speaks <b>English</b> <span class="code">EN</span><br><span class="hears">hears Korean · <span lang="ko">한국어</span></span></p>
+          <p class="p-state"><span class="st">Listening</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></p>
+        </div>
+      </article>
+      <div class="bridge" role="img" aria-label="Translating Ji-woo into English for you">
+        <span class="b-track"><span class="b-line"></span><span class="b-arrow"></span><span class="b-packet"></span><span class="b-tick t1"></span><span class="b-tick t2"></span><span class="b-tick t3"></span></span>
+        <span class="b-label">Translating into English</span>
+        <span class="b-readout">≈ 1.2 s</span>
+      </div>
+      <article class="p p-other is-speaking" aria-label="Ji-woo, speaks Korean, hears English, speaking">
+        <span class="av" aria-hidden="true">J</span>
+        <div class="p-txt">
+          <p class="p-name">Ji-woo</p>
+          <p class="p-lang">Speaks <b lang="ko">한국어</b> <span class="code">KO</span><br><span class="hears">hears English</span></p>
+          <p class="p-state"><span class="st">Speaking</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></p>
+        </div>
+      </article>
+    </div>
+    <ol class="m-log" aria-label="Transcript">
+      <li class="t t-other">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:02</span></p>
+        <p class="t-sec" lang="ko">내일 회의 몇 시예요?</p>
+        <p class="t-pri"><span class="t-tag">Translated</span>What time is the meeting tomorrow?</p>
+      </li>
+      <li class="t t-self">
+        <p class="t-meta"><span class="t-who">You</span><span class="t-time">14:02</span></p>
+        <p class="t-pri">At ten, in the main office.</p>
+        <p class="t-sec"><span class="t-tag">What Ji-woo heard</span><span lang="ko">열 시에 본사에서요.</span></p>
+      </li>
+      <li class="t t-other">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:03</span></p>
+        <p class="t-sec" lang="ko">좋아요. 계약서도 가져갈까요?</p>
+        <p class="t-pri"><span class="t-tag">Translated</span>Great. Should I bring the contract too?</p>
+      </li>
+      <li class="t t-other t-pending">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:03</span></p>
+        <p class="t-sec" lang="ko">그리고 점심도 같이 해요.</p>
+        <p class="t-wait">Translating…</p>
+      </li>
+    </ol>
+  </div>
+  <div class="m-dock" role="toolbar" aria-label="Call controls (mock)">
+    <button type="button" class="d-btn d-mic" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Mute</span></button>
+    <button type="button" class="d-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg><span>Speaker</span></button>
+    <button type="button" class="d-btn d-tx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 11h14M5 16h9"/></svg><span>Transcript</span></button>
+    <button type="button" class="d-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>More</span></button>
+    <button type="button" class="d-btn d-end"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14.5c5-4.7 13-4.7 18 0l-2.4 2.6-3.4-1.6v-2.6a12 12 0 0 0-6.4 0v2.6l-3.4 1.6z"/></svg><span>End call</span></button>
+  </div>
+</div>
+    <div class="strip">
+    <ul class="sw"><li><span class="chip" style="background:var(--bg)"></span>bg</li><li><span class="chip" style="background:var(--surface)"></span>surface</li><li><span class="chip" style="background:var(--text)"></span>text</li><li><span class="chip" style="background:var(--self)"></span>you</li><li><span class="chip" style="background:var(--other)"></span>them</li><li><span class="chip" style="background:var(--interp)"></span>interpreter</li><li><span class="chip" style="background:var(--danger)"></span>end / error</li></ul>
+    <div class="ty"><p class="ty-d" style="font-family:var(--f-mono)">04:12 · KO→EN</p><p class="ty-m">DM Mono · Manrope 600 · DM Sans</p></div>
+  </div>
+    <p class="dir-risk">Risk: reads as a monitoring console. The latency readout is not available live today, and mono has no Hangul.</p>
+  </section>
+  <section class="dir dir-c" aria-labelledby="h-c">
+    <div class="dir-head">
+      <h2 id="h-c"><span class="dir-letter">C</span>Human + AI</h2>
+      <span class="basis">Basis of the recommendation</span>
+    </div>
+    <p class="dir-line">Two people, two lanes, a lime thread between them. Warm, serif, rounded.</p>
+    
+<div class="mock" aria-labelledby="c-cap">
+  <p class="sr-only" id="c-cap">Mock call screen: Sam (you, English) and Ji-woo (Korean). Ji-woo is speaking; the interpreter is translating into English for Sam.</p>
+  <div class="m-head">
+    <span class="m-pair">English <span class="m-swap" aria-hidden="true">↔</span> <span lang="ko">한국어</span></span>
+    <span class="m-time">04:12</span>
+    <span class="m-conn" title="Good connection"><span class="q" aria-hidden="true"><i></i><i></i><i></i></span><span class="m-conn-w">Good</span></span>
+  </div>
+  <div class="m-body">
+    <div class="m-people" aria-label="Participants">
+      <article class="p p-self" aria-label="Sam (you), speaks English, hears Korean, listening">
+        <span class="av" aria-hidden="true">S</span>
+        <div class="p-txt">
+          <p class="p-name">Sam <span class="you">You</span></p>
+          <p class="p-lang">Speaks <b>English</b> <span class="code">EN</span><br><span class="hears">hears Korean · <span lang="ko">한국어</span></span></p>
+          <p class="p-state"><span class="st">Listening</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></p>
+        </div>
+      </article>
+      <div class="bridge" role="img" aria-label="Translating Ji-woo into English for you">
+        <span class="b-track"><span class="b-line"></span><span class="b-arrow"></span><span class="b-packet"></span><span class="b-tick t1"></span><span class="b-tick t2"></span><span class="b-tick t3"></span></span>
+        <span class="b-label">Translating into English</span>
+        <span class="b-readout">≈ 1.2 s</span>
+      </div>
+      <article class="p p-other is-speaking" aria-label="Ji-woo, speaks Korean, hears English, speaking">
+        <span class="av" aria-hidden="true">J</span>
+        <div class="p-txt">
+          <p class="p-name">Ji-woo</p>
+          <p class="p-lang">Speaks <b lang="ko">한국어</b> <span class="code">KO</span><br><span class="hears">hears English</span></p>
+          <p class="p-state"><span class="st">Speaking</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></p>
+        </div>
+      </article>
+    </div>
+    <ol class="m-log" aria-label="Transcript">
+      <li class="t t-other">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:02</span></p>
+        <p class="t-sec" lang="ko">내일 회의 몇 시예요?</p>
+        <p class="t-pri"><span class="t-tag">Translated</span>What time is the meeting tomorrow?</p>
+      </li>
+      <li class="t t-self">
+        <p class="t-meta"><span class="t-who">You</span><span class="t-time">14:02</span></p>
+        <p class="t-pri">At ten, in the main office.</p>
+        <p class="t-sec"><span class="t-tag">What Ji-woo heard</span><span lang="ko">열 시에 본사에서요.</span></p>
+      </li>
+      <li class="t t-other">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:03</span></p>
+        <p class="t-sec" lang="ko">좋아요. 계약서도 가져갈까요?</p>
+        <p class="t-pri"><span class="t-tag">Translated</span>Great. Should I bring the contract too?</p>
+      </li>
+      <li class="t t-other t-pending">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:03</span></p>
+        <p class="t-sec" lang="ko">그리고 점심도 같이 해요.</p>
+        <p class="t-wait">Translating…</p>
+      </li>
+    </ol>
+  </div>
+  <div class="m-dock" role="toolbar" aria-label="Call controls (mock)">
+    <button type="button" class="d-btn d-mic" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Mute</span></button>
+    <button type="button" class="d-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg><span>Speaker</span></button>
+    <button type="button" class="d-btn d-tx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 11h14M5 16h9"/></svg><span>Transcript</span></button>
+    <button type="button" class="d-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>More</span></button>
+    <button type="button" class="d-btn d-end"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14.5c5-4.7 13-4.7 18 0l-2.4 2.6-3.4-1.6v-2.6a12 12 0 0 0-6.4 0v2.6l-3.4 1.6z"/></svg><span>End call</span></button>
+  </div>
+</div>
+    <div class="strip">
+    <ul class="sw"><li><span class="chip" style="background:var(--bg)"></span>bg</li><li><span class="chip" style="background:var(--surface)"></span>surface</li><li><span class="chip" style="background:var(--text)"></span>text</li><li><span class="chip" style="background:var(--self)"></span>you</li><li><span class="chip" style="background:var(--other)"></span>them</li><li><span class="chip" style="background:var(--interp)"></span>interpreter</li><li><span class="chip" style="background:var(--danger)"></span>end / error</li></ul>
+    <div class="ty"><p class="ty-d" style="font-family:var(--f-display)">Ji-woo <span lang="ko">지우</span></p><p class="ty-m">Newsreader · DM Sans</p></div>
+  </div>
+    <p class="dir-risk">Risk: cream plus serif drifts toward a lifestyle app, and the serif has no Hangul or Cyrillic.</p>
+  </section>
+</section>
+
+<section class="dir dir-r rec" id="recommended" aria-labelledby="h-r">
+  <div class="dir-head">
+    <h2 id="h-r"><span class="dir-letter">A×C</span>Recommended: two lanes, one bridge</h2>
+    <span class="badge">Recommended</span>
+  </div>
+  <p class="dir-line">A's paper, ink, type and restraint, plus C's identity colours and bridge. B's precision is kept to the level meter and the Technical details drawer. Teal is always <em>you</em>, plum is always <em>them</em>, lime is always the <em>interpreter</em>. Colour says who; shape and motion say what.</p>
+  <div class="rec-grid">
+    
+<div class="mock" aria-labelledby="r-cap">
+  <p class="sr-only" id="r-cap">Mock call screen: Sam (you, English) and Ji-woo (Korean). Ji-woo is speaking; the interpreter is translating into English for Sam.</p>
+  <div class="m-head">
+    <span class="m-pair">English <span class="m-swap" aria-hidden="true">↔</span> <span lang="ko">한국어</span></span>
+    <span class="m-time">04:12</span>
+    <span class="m-conn" title="Good connection"><span class="q" aria-hidden="true"><i></i><i></i><i></i></span><span class="m-conn-w">Good</span></span>
+  </div>
+  <div class="m-body">
+    <div class="m-people" aria-label="Participants">
+      <article class="p p-self" aria-label="Sam (you), speaks English, hears Korean, listening">
+        <span class="av" aria-hidden="true">S</span>
+        <div class="p-txt">
+          <p class="p-name">Sam <span class="you">You</span></p>
+          <p class="p-lang">Speaks <b>English</b> <span class="code">EN</span><br><span class="hears">hears Korean · <span lang="ko">한국어</span></span></p>
+          <p class="p-state"><span class="st">Listening</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></p>
+        </div>
+      </article>
+      <div class="bridge" role="img" aria-label="Translating Ji-woo into English for you">
+        <span class="b-track"><span class="b-line"></span><span class="b-arrow"></span><span class="b-packet"></span><span class="b-tick t1"></span><span class="b-tick t2"></span><span class="b-tick t3"></span></span>
+        <span class="b-label">Translating into English</span>
+        <span class="b-readout">≈ 1.2 s</span>
+      </div>
+      <article class="p p-other is-speaking" aria-label="Ji-woo, speaks Korean, hears English, speaking">
+        <span class="av" aria-hidden="true">J</span>
+        <div class="p-txt">
+          <p class="p-name">Ji-woo</p>
+          <p class="p-lang">Speaks <b lang="ko">한국어</b> <span class="code">KO</span><br><span class="hears">hears English</span></p>
+          <p class="p-state"><span class="st">Speaking</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></p>
+        </div>
+      </article>
+    </div>
+    <ol class="m-log" aria-label="Transcript">
+      <li class="t t-other">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:02</span></p>
+        <p class="t-sec" lang="ko">내일 회의 몇 시예요?</p>
+        <p class="t-pri"><span class="t-tag">Translated</span>What time is the meeting tomorrow?</p>
+      </li>
+      <li class="t t-self">
+        <p class="t-meta"><span class="t-who">You</span><span class="t-time">14:02</span></p>
+        <p class="t-pri">At ten, in the main office.</p>
+        <p class="t-sec"><span class="t-tag">What Ji-woo heard</span><span lang="ko">열 시에 본사에서요.</span></p>
+      </li>
+      <li class="t t-other">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:03</span></p>
+        <p class="t-sec" lang="ko">좋아요. 계약서도 가져갈까요?</p>
+        <p class="t-pri"><span class="t-tag">Translated</span>Great. Should I bring the contract too?</p>
+      </li>
+      <li class="t t-other t-pending">
+        <p class="t-meta"><span class="t-who">Ji-woo</span><span class="t-time">14:03</span></p>
+        <p class="t-sec" lang="ko">그리고 점심도 같이 해요.</p>
+        <p class="t-wait">Translating…</p>
+      </li>
+    </ol>
+  </div>
+  <div class="m-dock" role="toolbar" aria-label="Call controls (mock)">
+    <button type="button" class="d-btn d-mic" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Mute</span></button>
+    <button type="button" class="d-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg><span>Speaker</span></button>
+    <button type="button" class="d-btn d-tx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 11h14M5 16h9"/></svg><span>Transcript</span></button>
+    <button type="button" class="d-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>More</span></button>
+    <button type="button" class="d-btn d-end"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14.5c5-4.7 13-4.7 18 0l-2.4 2.6-3.4-1.6v-2.6a12 12 0 0 0-6.4 0v2.6l-3.4 1.6z"/></svg><span>End call</span></button>
+  </div>
+</div>
+    <div class="rec-side">
+      <div class="strip">
+    <ul class="sw"><li><span class="chip" style="background:var(--bg)"></span>bg #f6f5ef / #121516</li><li><span class="chip" style="background:var(--surface)"></span>surface #fffefa / #1a1e1f</li><li><span class="chip" style="background:var(--text)"></span>text #1d2022 / #ecebe4</li><li><span class="chip" style="background:var(--self)"></span>id-self #0f6e6a / #4fc6bd</li><li><span class="chip" style="background:var(--other)"></span>id-other #9b3a6e / #e48bbd</li><li><span class="chip" style="background:var(--interp)"></span>interp #d9f455 (ink #566300)</li><li><span class="chip" style="background:var(--warn)"></span>warning #8a5300 / #f2b33d</li><li><span class="chip" style="background:var(--danger)"></span>danger-solid #b42318 / #c4362b</li></ul>
+    <div class="ty"><p class="ty-d" style="font-family:var(--f-display)">Ji-woo <span lang="ko">지우</span></p><p class="ty-b">Transcript body 17/28 DM Sans. <span lang="ko">한국어는 Noto Sans KR로 표시됩니다.</span></p><p class="ty-m">Manrope 600 · DM Sans · DM Mono · Noto Sans KR (fallback)</p></div>
+  </div>
+      <table class="ratios">
+        <caption>Key contrast ratios (light / dark)</caption>
+        <tbody>
+          <tr><th scope="row">text on bg</th><td>15.0 / 15.4</td></tr>
+          <tr><th scope="row">muted on bg</th><td>4.79 / 6.67</td></tr>
+          <tr><th scope="row">you (teal) on surface</th><td>6.02 / 8.12</td></tr>
+          <tr><th scope="row">them (plum) on surface</th><td>6.45 / 6.98</td></tr>
+          <tr><th scope="row">interp ink on bg</th><td>6.05 / 14.9</td></tr>
+          <tr><th scope="row">white on End</th><td>6.57 / 5.37</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="score" aria-labelledby="h-score">
+  <h2 id="h-score">Score against the brief (1–5)</h2>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th scope="col">Criterion</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">A×C</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Product clear in 5 s</th><td>4</td><td>2</td><td>5</td><td>5</td></tr>
+      <tr><th scope="row">Start/join obvious</th><td>4</td><td>3</td><td>4</td><td>5</td></tr>
+      <tr><th scope="row">People + languages at once</th><td>3</td><td>3</td><td>5</td><td>5</td></tr>
+      <tr><th scope="row">Speaking / translation state</th><td>3</td><td>5</td><td>4</td><td>5</td></tr>
+      <tr><th scope="row">Transcript easy to follow</th><td>4</td><td>2</td><td>4</td><td>5</td></tr>
+      <tr><th scope="row">Controls obvious</th><td>4</td><td>4</td><td>4</td><td>4</td></tr>
+      <tr><th scope="row">Communication, not AI dashboard</th><td>5</td><td>1</td><td>5</td><td>5</td></tr>
+      <tr><th scope="row">Distinctive</th><td>3</td><td>3</td><td>4</td><td>4</td></tr>
+      <tr><th scope="row">Desktop + mobile</th><td>4</td><td>3</td><td>3</td><td>4</td></tr>
+      <tr><th scope="row">Motion aids understanding</th><td>3</td><td>4</td><td>4</td><td>5</td></tr>
+      <tr><th scope="row">Maintainable</th><td>5</td><td>3</td><td>2</td><td>4</td></tr>
+      <tr><th scope="row">No extra dependencies</th><td>5</td><td>5</td><td>4</td><td>5</td></tr>
+      <tr class="tot"><th scope="row">Total / 60</th><td>47</td><td>38</td><td>48</td><td>56</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="foot">Full system, components and state table: <code>docs/frontend/VOICE_LABS_DESIGN_SYSTEM.md</code>.</p>
+</section>
+</main>
+<script>
+(function(){
+  var root=document.documentElement, v=document.getElementById('theme-v'), modes=['auto','light','dark'], i=0;
+  try{var s=localStorage.getItem('vl-dir-theme'); if(s&&modes.indexOf(s)>-1)i=modes.indexOf(s);}catch(e){}
+  function apply(){var m=modes[i]; if(m==='auto')root.removeAttribute('data-theme'); else root.setAttribute('data-theme',m); v.textContent=m;}
+  apply();
+  document.getElementById('theme').addEventListener('click',function(){i=(i+1)%3; apply(); try{localStorage.setItem('vl-dir-theme',modes[i]);}catch(e){}});
+})();
+</script>
+</body>
+</html>

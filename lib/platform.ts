@@ -7,6 +7,53 @@ export type VoiceSession = {
   connection_status: "configured" | "not_configured";
   runtime_status: string;
   connection: { url: string; token: string };
+  /**
+   * Bearer token scoped to this session (`vls_…`). Lets the creator read the conversation and end the
+   * session on an auth-enabled Platform. Optional: an older Platform does not return it.
+   */
+  session_token?: string;
+};
+
+/** `interpreter` block of an agent with `mode: "interpreter"` (backend `InterpreterConfig`). */
+export type InterpreterConfig = {
+  /** Exactly two distinct interpreter languages (lib/languages.ts `interpreterLanguages`). */
+  languages: string[];
+  /** `auto` only when both languages can code-switch; Korean, Chinese, Turkish and Polish need `one_way`. */
+  direction?: "auto" | "one_way";
+  /** Two-person calls need `cascaded`. Always send it: `instant` pace silently picks `realtime` otherwise. */
+  engine?: "cascaded" | "realtime";
+  /** UI word: "Translation pace" (Fast / Balanced / Careful). */
+  latency_mode?: "instant" | "balanced" | "accurate";
+  /** UI words: "Also hear their real voice". */
+  hear_original?: boolean;
+  glossary?: Array<Record<string, unknown>>;
+};
+
+/** A person in a two-person interpreter call (backend `ParticipantIn`). */
+export type SessionParticipantInput = {
+  /** Must be one of the interpreter's two languages, and differ from the other person's. */
+  language: string;
+  /** A ready voice from the Voice library; their translated words are spoken in it. */
+  voice_profile_id?: string | null;
+  /** Max 100 characters. Names the speaker in the other person's transcript. */
+  display_name?: string | null;
+};
+
+/** `POST /voice/sessions/{id}/participants`: the guest's own LiveKit connection and session token. */
+export type SessionParticipant = {
+  participant_identity: string;
+  connection: { url: string; token: string };
+  session_token: string;
+};
+
+export type VoiceSessionDetail = {
+  id: string;
+  conversation_id: string;
+  status: string;
+  room_name: string;
+  transport?: string;
+  started_at: string | null;
+  ended_at: string | null;
 };
 
 export type Agent = {
@@ -21,6 +68,9 @@ export type Agent = {
   voice_id: string | null;
   /** The shared voice from the Voice library (`/voices`) this agent speaks with. */
   voice_profile_id?: string | null;
+  /** Optional so older Platform responses and test fixtures still type-check; absent means "agent". */
+  mode?: "agent" | "interpreter";
+  interpreter?: InterpreterConfig | null;
   status: string;
 };
 
@@ -74,6 +124,17 @@ export type ConversationRuntimeState = {
   events: ConversationRuntimeEvent[];
 };
 
+/**
+ * Adds `Authorization: Bearer <token>` for session-scoped routes. Without a token the init is returned
+ * unchanged, so existing calls send exactly what they sent before (no CORS preflight added).
+ */
+export function withBearer(init: RequestInit | undefined, token?: string | null): RequestInit | undefined {
+  if (!token) return init;
+  const headers = new Headers(init?.headers);
+  headers.set("authorization", `Bearer ${token}`);
+  return { ...init, headers };
+}
+
 /** The one place that talks to the Platform. Every other `lib/*` module builds on it. */
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${platformUrl}${path}`, { ...init, cache: "no-store" });
@@ -102,22 +163,45 @@ export const saveAgent = (data: Partial<Agent> & Pick<Agent, "name">, id?: strin
     body: JSON.stringify(data),
   });
 export const getConversations = () => request<Conversation[]>("/conversations");
-export const getConversation = (id: string) => request<Conversation>(`/conversations/${encodeURIComponent(id)}`);
-export const getConversationRuntimeState = (id: string) => request<ConversationRuntimeState>(`/conversations/${encodeURIComponent(id)}/runtime-state`);
-export const getMessages = (id: string) => request<ConversationMessage[]>(`/conversations/${encodeURIComponent(id)}/messages`);
-export const endVoiceSession = (id: string) => request<{ status: string }>(`/voice/sessions/${encodeURIComponent(id)}/end`, { method: "POST" });
-export const ensureVoiceSessionRunning = (id: string) => request<{ session_status: string; runtime_status: string }>(
+// The optional `token` is a session token (creator or guest); see `withBearer`.
+// `signal` lets the call poll abort a hung request (timeout) and stop on unmount.
+const withSignal = (init: RequestInit | undefined, signal?: AbortSignal) => (signal ? { ...init, signal } : init);
+export const getConversation = (id: string, token?: string | null, signal?: AbortSignal) =>
+  request<Conversation>(`/conversations/${encodeURIComponent(id)}`, withSignal(withBearer(undefined, token), signal));
+export const getConversationRuntimeState = (id: string, token?: string | null) =>
+  request<ConversationRuntimeState>(`/conversations/${encodeURIComponent(id)}/runtime-state`, withBearer(undefined, token));
+export const getMessages = (id: string, token?: string | null, signal?: AbortSignal) =>
+  request<ConversationMessage[]>(`/conversations/${encodeURIComponent(id)}/messages`, withSignal(withBearer(undefined, token), signal));
+export const endVoiceSession = (id: string, token?: string | null) =>
+  request<{ status: string }>(`/voice/sessions/${encodeURIComponent(id)}/end`, withBearer({ method: "POST" }, token));
+export const ensureVoiceSessionRunning = (id: string, token?: string | null, signal?: AbortSignal) => request<{ session_status: string; runtime_status: string }>(
   `/voice/sessions/${encodeURIComponent(id)}/ensure-running`,
-  { method: "POST" },
+  withSignal(withBearer({ method: "POST" }, token), signal),
 );
+export const getVoiceSession = (id: string, token?: string | null) =>
+  request<VoiceSessionDetail>(`/voice/sessions/${encodeURIComponent(id)}`, withBearer(undefined, token));
 
-export async function createVoiceSession(agentId: string): Promise<VoiceSession> {
+/**
+ * Creates a voice session. Pass `participant` to start a two-person interpreter call as its creator
+ * (the agent must be a cascaded interpreter, and `language` one of its two languages).
+ */
+export async function createVoiceSession(agentId: string, participant?: SessionParticipantInput): Promise<VoiceSession> {
   return request<VoiceSession>("/voice/sessions", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ agent_id: agentId }),
+    body: JSON.stringify(participant ? { agent_id: agentId, participant } : { agent_id: agentId }),
   });
 }
+
+/**
+ * Adds the second person to a two-person call (creator only). Uses up the session's only guest slot
+ * at once, even if nobody joins with the returned token (409 `session_full` on a second try).
+ */
+export const addSessionParticipant = (sessionId: string, participant: SessionParticipantInput, token?: string | null) =>
+  request<SessionParticipant>(
+    `/voice/sessions/${encodeURIComponent(sessionId)}/participants`,
+    withBearer({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(participant) }, token),
+  );
 
 /** Records how a call ended. `outcome` must be one of `OUTCOMES` (lib/outcomes.ts). */
 export const setConversationOutcome = (id: string, body: { outcome: string; summary?: string | null; intent?: string | null; actions?: ConversationAction[] | null }) =>
