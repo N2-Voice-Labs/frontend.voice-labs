@@ -138,3 +138,10 @@ test("an error detail that is an object surfaces its code (rate limits, session 
   vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ detail: { code: "rate_limited", message: "slow down" } }), { status: 429 }));
   await expect(createCall({ languages: ["en", "ko"] })).rejects.toMatchObject({ message: "rate_limited", status: 429 });
 });
+
+test("a refused call because a speech provider is down gets a plain message, not the raw code", async () => {
+  vi.spyOn(globalThis, "fetch").mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ detail: { code: "provider_unavailable", provider: "elevenlabs", kind: "stt" } }), { status: 503 })));
+  const cause = await createCall({ languages: ["en", "ko"] }).catch((error: unknown) => error);
+  const { describeError } = await import("@/lib/platform-errors");
+  expect(describeError(cause)).toMatch(/isn’t available right now/);
+});

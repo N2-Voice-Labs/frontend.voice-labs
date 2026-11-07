@@ -47,6 +47,7 @@ const messages: Record<string, string> = {
   runtime_auth_not_configured: "The interpreter isn’t set up on this server yet.",
   authentication_required: "This Voice Labs server needs a sign-in key, and calls can’t start without one.",
   // Shareable-link calls.
+  provider_unavailable: "A speech or translation service isn’t available right now (it may be out of credit or down). The call can’t start; try again later.",
   calls_disabled: "Calls by link aren’t switched on for this server yet.",
   invite_not_found: "This invite link isn’t valid. Ask for a new one.",
   invite_expired: "This invite has expired. Ask for a new one.",
