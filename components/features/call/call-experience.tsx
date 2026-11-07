@@ -168,6 +168,7 @@ export function CallExperience() {
       const ok = await room.connect({
         url: created.connection.url,
         token: created.connection.token,
+        listen: created.connection.listen,
         sessionId: created.session_id,
         sessionToken: created.session_token,
         tokenExpiresAt: issuedAt + LIVEKIT_TTL_SECONDS,

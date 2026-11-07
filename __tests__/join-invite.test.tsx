@@ -126,6 +126,18 @@ test("Join call seats the guest with the code and the typed name, then connects 
   await screen.findByRole("toolbar", { name: "Call controls" });
 });
 
+test("the guest also joins the private listen room, where their translation arrives", async () => {
+  mocks.joinCall.mockResolvedValue({ ...guest, connection: { ...guest.connection, listen: { url: "wss://livekit.example/rtc", token: "guest-listen-token", room_name: "r--listen", track: "translation-for-guest-1" } } });
+  window.history.replaceState(null, "", `/join#c=${CODE}`);
+  render(<JoinExperience />);
+  await screen.findByText("Ji-woo invited you to a call");
+  fireEvent.click(screen.getByRole("button", { name: /Check microphone/ }));
+  await screen.findByText("Say something to test it");
+  fireEvent.click(screen.getByRole("button", { name: /Join call/ }));
+  await waitFor(() => expect(mocks.connect).toHaveBeenCalledWith("wss://livekit.example/rtc", "guest-listen-token"));
+  expect(mocks.connect).toHaveBeenCalledWith("wss://livekit.example/rtc", "lk.guest.token");
+});
+
 test("a refused join (someone else holds the seat) is explained and nothing connects", async () => {
   mocks.joinCall.mockRejectedValue(Object.assign(new Error("guest_already_invited"), { status: 409 }));
   window.history.replaceState(null, "", `/join#c=${CODE}`);

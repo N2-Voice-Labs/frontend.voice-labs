@@ -80,6 +80,15 @@ test("Start call: create the call (no account, no agent lookup) → connect Live
   expect(screen.getByRole("toolbar", { name: "Call controls" })).toBeTruthy();
 });
 
+test("the creator also joins the private listen room, where their translation arrives", async () => {
+  const listen = { url: "ws://livekit.test", token: "creator-listen-token", room_name: "voice-labs-s1--listen", track: "translation-for-browser-s1" };
+  mocks.createCall.mockResolvedValue({ ...session, connection: { ...session.connection, listen } });
+  fireEvent.click(await readyToStart());
+  await screen.findByRole("heading", { name: "Invite the other person" });
+  expect(mocks.connect).toHaveBeenCalledWith("ws://livekit.test", "creator-token");
+  expect(mocks.connect).toHaveBeenCalledWith("ws://livekit.test", "creator-listen-token");
+});
+
 test("Start is unavailable until the mic is checked, but stays focusable and explains why", async () => {
   render(<CallExperience />);
   const start = await screen.findByRole("button", { name: /Start call/ });

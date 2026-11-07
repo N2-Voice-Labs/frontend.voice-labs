@@ -146,6 +146,7 @@ function JoinCall({ code }: { code: string }) {
       await room.connect({
         url: guest.connection.url,
         token: guest.connection.token,
+        listen: guest.connection.listen,
         sessionId: next.sessionId,
         sessionToken: next.sessionToken,
         tokenExpiresAt: issuedAt + 600,

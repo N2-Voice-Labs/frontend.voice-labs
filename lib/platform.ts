@@ -1,12 +1,18 @@
 const platformUrl = process.env.NEXT_PUBLIC_PLATFORM_URL ?? "http://localhost:8000";
 
+/**
+ * Private listening (the default for two-person calls): the session-room token cannot subscribe to anything, and
+ * the translation for this person arrives on `track` in a separate, subscribe-only room (`connection.listen`).
+ */
+export type ListenConnection = { url: string; token: string; room_name: string; track: string };
+
 export type VoiceSession = {
   session_id: string;
   conversation_id: string;
   room_name: string;
   connection_status: "configured" | "not_configured";
   runtime_status: string;
-  connection: { url: string; token: string };
+  connection: { url: string; token: string; listen?: ListenConnection };
   /**
    * Bearer token scoped to this session (`vls_…`). Lets the creator read the conversation and end the
    * session on an auth-enabled Platform. Optional: an older Platform does not return it.
@@ -42,7 +48,7 @@ export type SessionParticipantInput = {
 /** `POST /voice/sessions/{id}/participants`: the guest's own LiveKit connection and session token. */
 export type SessionParticipant = {
   participant_identity: string;
-  connection: { url: string; token: string };
+  connection: { url: string; token: string; listen?: ListenConnection };
   session_token: string;
 };
 
