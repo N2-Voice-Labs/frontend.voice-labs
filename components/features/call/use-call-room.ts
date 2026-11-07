@@ -21,7 +21,7 @@ import {
   type EndReason,
   type Seat,
 } from "@/lib/call-state";
-import { endVoiceSession } from "@/lib/platform";
+import { endCall as endCallSession } from "@/lib/platform";
 import { createLevelSampler, LevelStore, type LevelSampler } from "./level-store";
 
 /**
@@ -161,7 +161,7 @@ export function useCallRoom(options: { otherName?: string } = {}) {
       return;
     }
     try {
-      await endVoiceSession(credentials.sessionId, credentials.sessionToken);
+      await endCallSession(credentials.sessionId, credentials.sessionToken);
       safeDispatch({ type: "ended", reason });
     } catch (cause) {
       // Keep the session id so "Retry end call" can try again (same rule as the playground).

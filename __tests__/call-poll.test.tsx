@@ -70,11 +70,13 @@ test("unchanged polls keep the same array; unchanged messages keep their identit
 
 test("turns keep their identity across re-pairing, so memoised rows don't re-render", () => {
   const first = [message("1", "user", "ko", "안녕", 1), message("2", "assistant", "en", "Hi", 2)];
-  const turnsA = pairCallMessages(first, { self: "en", other: "ko" });
-  const turnsB = reuseTurns(turnsA, pairCallMessages(first, { self: "en", other: "ko" }));
+  // The messages are dated 2026-10-21; judge "pending" against a clock just after them, not today's.
+  const now = Date.UTC(2026, 9, 21, 5, 0, 5);
+  const turnsA = pairCallMessages(first, { self: "en", other: "ko" }, now);
+  const turnsB = reuseTurns(turnsA, pairCallMessages(first, { self: "en", other: "ko" }, now));
   expect(turnsB).toBe(turnsA);
   const more = [...first, message("3", "user", "en", "Hello", 3)];
-  const turnsC = reuseTurns(turnsB, pairCallMessages(more, { self: "en", other: "ko" }));
+  const turnsC = reuseTurns(turnsB, pairCallMessages(more, { self: "en", other: "ko" }, now));
   expect(turnsC).not.toBe(turnsB);
   expect(turnsC[0]).toBe(turnsA[0]);
   expect(turnsC[1].status).toBe("pending");
