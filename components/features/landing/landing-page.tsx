@@ -48,7 +48,7 @@ export function LandingPage() {
           <div className="section-heading">
             <p className="eyebrow" data-step="0">Language switching</p>
             <h2 data-split>Conversations don’t stay in one language.</h2>
-            <p className="section-intro" data-step="1">Callers often start in one language and finish in another. Voice Labs agents follow the change without asking them to choose again.</p>
+            <p className="section-intro" data-step="1">Callers often start in one language and finish in another. UNAI agents follow the change without asking them to choose again.</p>
             <div className="signal-detail" data-step="2"><span className="detail-line" /><span>Language is fluid.<br /><strong>Your agent can be too.</strong></span></div>
           </div>
           <div data-step="0" data-step-from="scale"><VoicePreview /></div>
@@ -86,7 +86,7 @@ export function LandingPage() {
         <p className="eyebrow" data-step="0">Comparison</p>
         <div className="compare-intro">
           <h2 id="compare-title" data-step="0">Compared with<br /><em>scripted phone menus.</em></h2>
-          <p data-step="1">Where Voice Labs behaves differently in the moments that matter to the person on the call.</p>
+          <p data-step="1">Where UNAI behaves differently in the moments that matter to the person on the call.</p>
         </div>
         <div data-step="2"><Comparison /></div>
       </section>
@@ -110,7 +110,7 @@ export function LandingPage() {
         <p className="eyebrow" data-step="0">Get started</p>
         <h2 data-split>Build your first<br />voice agent.</h2>
         <p data-step="1">Set up an agent, speak to it in the playground, and review the conversation afterwards.</p>
-        <Link className="button-link button-coral" href="/agents" data-step="1">Open Voice Labs <span aria-hidden="true">↗</span></Link>
+        <Link className="button-link button-coral" href="/agents" data-step="1">Open UNAI <span aria-hidden="true">↗</span></Link>
         <p className="closing-uses" data-step="2">Used for {useCases.map((item) => item.toLowerCase()).join(", ")}.</p>
       </section>
     </main>

@@ -91,8 +91,8 @@ export function DashboardHeader() {
 
   return (
     <header className="dash-header">
-      <Link className="marketing-brand dash-brand" href="/" aria-label="Voice Labs home">
-        <span className="brand-glyph">v<span>.</span></span><span>voice labs</span><em>Workspace</em>
+      <Link className="marketing-brand dash-brand" href="/" aria-label="UNAI home">
+        <span className="brand-glyph">u<span>.</span></span><span>unai</span><em>Workspace</em>
       </Link>
       <WorkspaceNav pathname={pathname} />
       <div className="dash-actions">

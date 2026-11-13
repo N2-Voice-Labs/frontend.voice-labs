@@ -1,4 +1,4 @@
-# Frontend agent instructions
+# UNAI frontend agent instructions (repository: frontend.voice-labs)
 
 This is the Next.js App Router frontend for agents, Voice Playground, and conversations.
 Keep the client boundary focused on calling Platform and joining LiveKit. Do not add a

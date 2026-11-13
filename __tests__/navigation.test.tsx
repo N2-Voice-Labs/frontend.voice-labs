@@ -44,7 +44,7 @@ test("the call page header links to every workspace section, with Call marked cu
   const labels = within(primary).getAllByRole("link").map((link) => link.textContent);
   expect(labels.slice(0, 5)).toEqual(["Call", "Conversations", "Agents", "Voices", "Usage"]);
   expect(within(primary).getByRole("link", { name: "Call" }).getAttribute("aria-current")).toBe("page");
-  expect(screen.getByRole("link", { name: "Voice Labs home" }).getAttribute("href")).toBe("/");
+  expect(screen.getByRole("link", { name: "UNAI home" }).getAttribute("href")).toBe("/");
   fireEvent.click(screen.getByRole("button", { name: "Menu" }));
   expect(within(screen.getByRole("dialog", { name: "Menu" })).getByRole("link", { name: "Agents" }).getAttribute("href")).toBe("/agents");
   nav.pathname = "/conversations";

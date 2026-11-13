@@ -16,9 +16,9 @@ const mono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: { default: "Voice Labs — Voice AI for real conversations", template: "%s · Voice Labs" },
-  description: "Create voice agents that follow the conversation across English, Russian, and the spaces in between.",
-  openGraph: { type: "website", siteName: "Voice Labs" },
+  title: { default: "UNAI: AI voice agents for real conversations", template: "%s · UNAI" },
+  description: "UNAI workspace and the Inha Admissions Assistant demo: AI voice agents, real-time translation and chat.",
+  openGraph: { type: "website", siteName: "UNAI" },
   twitter: { card: "summary_large_image" },
 };
 

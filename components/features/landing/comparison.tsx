@@ -44,7 +44,7 @@ export function Comparison() {
       <div className="compare-head" aria-hidden="true">
         <span />
         <span>Scripted voice menus</span>
-        <span className="is-labs">Voice Labs</span>
+        <span className="is-labs">UNAI</span>
         <span />
       </div>
       <ul className="compare-list">
@@ -63,7 +63,7 @@ export function Comparison() {
                 >
                   <span className="compare-topic">{row.topic}</span>
                   <span className="compare-cell"><small>Scripted voice menus</small>{row.menu}</span>
-                  <span className="compare-cell is-labs"><small>Voice Labs</small>{row.labs}</span>
+                  <span className="compare-cell is-labs"><small>UNAI</small>{row.labs}</span>
                   <span className="compare-toggle" aria-hidden="true">+</span>
                 </button>
               </h3>

@@ -206,7 +206,7 @@ export default function VoicePlayground() {
 
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("Microphone access is unavailable. Open Voice Labs over HTTPS or localhost and check browser support.");
+        throw new Error("Microphone access is unavailable. Open UNAI over HTTPS or localhost and check browser support.");
       }
 
       let microphoneStream: MediaStream;

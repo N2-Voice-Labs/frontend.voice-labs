@@ -14,7 +14,7 @@ export function MobileNavigation() {
       <nav aria-label="Mobile navigation">
         <a href="#product" onClick={closeAfterNavigation}>Product</a>
         <a href="#platform" onClick={closeAfterNavigation}>How it works</a>
-        <a href="#compare" onClick={closeAfterNavigation}>Why Voice Labs</a>
+        <a href="#compare" onClick={closeAfterNavigation}>Why UNAI</a>
         <Link href="/call" onClick={closeAfterNavigation}>Start a call</Link>
         <Link href="/agents" onClick={closeAfterNavigation}>Workspace</Link>
       </nav>

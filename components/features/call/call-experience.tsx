@@ -65,11 +65,11 @@ function startError(cause: unknown, pace: TranslationPace): StartError {
     return { title: "This language pair can’t be interpreted with the current settings", message: pace === "instant" ? "Try the Balanced pace." : "Try a different pair or pace.", code, suggestBalanced: pace === "instant" };
   }
   if (code === "selected_voice_unavailable") return { title: "That voice isn’t ready", message: "Start the call with the interpreter’s voice instead.", code, retryWithoutVoice: true };
-  if (code === "calls_disabled") return { title: "Calls by link aren’t switched on", message: "Ask whoever runs Voice Labs to enable them on this server.", code };
+  if (code === "calls_disabled") return { title: "Calls by link aren’t switched on", message: "Ask whoever runs UNAI to enable them on this server.", code };
   if (code === "rate_limited" || code === "too_many_active_sessions") return { title: "Please wait a moment", message: describeError(cause), code };
   if (code === "runtime_unavailable" || code === "runtime_auth_not_configured") return { title: "The interpreter isn’t responding", message: "Try again in a moment.", code };
   if (cause instanceof Error && (cause.message.startsWith("Failed to fetch") || cause.message === "fetch failed")) {
-    return { title: "Can’t reach Voice Labs right now", message: "Check your connection and try again.", code: cause.message };
+    return { title: "Can’t reach UNAI right now", message: "Check your connection and try again.", code: cause.message };
   }
   return { title: "The call couldn’t start", message: describeError(cause), code: code ?? (cause instanceof Error ? cause.message : null) };
 }
@@ -159,7 +159,7 @@ export function CallExperience() {
         created = null;
         await endCallSession(partial.session_id, partial.session_token).catch(() => undefined);
         setStep(null);
-        setError({ title: "Calls aren’t set up on this server yet", message: "Ask whoever runs Voice Labs to configure LiveKit.", code: "livekit_not_configured" });
+        setError({ title: "Calls aren’t set up on this server yet", message: "Ask whoever runs UNAI to configure LiveKit.", code: "livekit_not_configured" });
         return;
       }
       const issuedAt = Math.floor(Date.now() / 1000);

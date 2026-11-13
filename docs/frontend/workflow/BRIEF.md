@@ -1,6 +1,12 @@
-# Voice Labs — Frontend Redesign Brief (from user)
+# UNAI — Frontend Redesign Brief (Inha Admissions portal)
 
-Core principle: Voice Labs is a realtime multilingual voice communication platform. The core product is PEOPLE COMMUNICATING ACROSS LANGUAGE BARRIERS IN REALTIME; AI/STT/TTS/LiveKit/providers are infrastructure. Example: Person A speaks Korean, Person B English; A hears English translation, B hears Korean; each hears only audio intended for them; realtime transcripts + communication state. Long-term: browser↔browser, browser↔phone, realtime speech translation, AI voice agents, multilingual calls, provider switching, transcripts, voice-preserving translation, AI participants joining calls.
+> **UNAI** (formerly Voice Labs) is a B2B AI communication platform: AI voice agents (primary), real-time translation, AI chatbots and developer APIs. First market: university admissions offices. First MVP: the AI Admissions Assistant for international students at Inha University. Calls run in the browser over WebRTC (LiveKit); telephone/SIP calling is deferred.
+
+This repository is the Inha Admissions portal example (confirmed 2026-11-12); the UNAI marketing site is the `frontend` repository. This brief records legacy design input; it should be reconciled with the current UNAI direction before implementation.
+
+## History (pre-UNAI)
+
+Core principle (pre-UNAI): realtime multilingual voice communication was previously framed as the core product; UNAI’s current primary product is AI voice agents, with real-time translation supporting human handoffs. Example: Person A speaks Korean, Person B English; A hears English translation, B hears Korean; each hears only audio intended for them; realtime transcripts + communication state. Long-term: browser↔browser, browser↔phone, realtime speech translation, AI voice agents, multilingual calls, provider switching, transcripts, voice-preserving translation, AI participants joining calls.
 
 UI priority order: 1 People, 2 Conversation, 3 Audio, 4 Language, 5 Realtime state, 6 Translation, 7 Transcript, 8 Controls. Technical/provider info available but secondary.
 

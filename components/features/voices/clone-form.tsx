@@ -7,8 +7,8 @@ import { LanguageChecks, ProviderSelect, VoiceResult } from "./voice-fields";
 
 const SAMPLE = /^[A-Za-z][A-Za-z0-9+.-]*:\/\/\S+$/;
 const statements = {
-  self: "I am the speaker, and I agree to have my voice cloned and used by Voice Labs agents.",
-  authorized: "I have the speaker’s permission to clone their voice and to use it in Voice Labs agents.",
+  self: "I am the speaker, and I agree to have my voice cloned and used by UNAI agents.",
+  authorized: "I have the speaker’s permission to clone their voice and to use it in UNAI agents.",
 };
 
 /** Clone a voice from a recording the Platform can reach. Consent is required and recorded with the voice. */

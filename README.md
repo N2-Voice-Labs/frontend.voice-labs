@@ -1,6 +1,8 @@
-# Voice Labs frontend
+# UNAI frontend (repository: frontend.voice-labs)
 
-The Voice Labs frontend is a Next.js App Router application for the public product site, voice agents, the Voice Playground, and conversation history.
+> **UNAI** (formerly Voice Labs) is a B2B AI communication platform: AI voice agents (primary), real-time translation, AI chatbots and developer APIs. First market: university admissions offices. First MVP: the AI Admissions Assistant for international students at Inha University. Calls run in the browser over WebRTC (LiveKit); telephone/SIP calling is deferred.
+
+This repository is the **Inha University Admissions portal**: UNAI's first customer-style implementation (confirmed 2026-11-12). It is a Next.js App Router application with the student-facing AI Admissions Assistant (voice call and chat), the `/staff` console for admissions officers, the translated `/call` and `/join` flow, and the agent workspace. The UNAI marketing site is the separate `frontend` repository.
 
 ## Requirements
 

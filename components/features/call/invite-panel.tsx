@@ -95,7 +95,7 @@ export function InvitePanel({
   async function share() {
     if (!invite || typeof navigator.share !== "function") return;
     try {
-      await navigator.share({ title: "Join my Voice Labs call", text: `${selfName} invited you to a translated call.`, url: invite.link });
+      await navigator.share({ title: "Join my UNAI call", text: `${selfName} invited you to a translated call.`, url: invite.link });
     } catch {
       // Cancelled.
     }

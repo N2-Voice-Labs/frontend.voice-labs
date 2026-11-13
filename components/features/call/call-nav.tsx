@@ -17,7 +17,7 @@ export function CallNav() {
 
   return (
     <header className="call-setup-header call-nav">
-      <Link className="marketing-brand" href="/" aria-label="Voice Labs home"><span className="brand-glyph">v<span>.</span></span><span>voice labs</span></Link>
+      <Link className="marketing-brand" href="/" aria-label="UNAI home"><span className="brand-glyph">u<span>.</span></span><span>unai</span></Link>
       <WorkspaceNav pathname={pathname} />
       <div className="call-setup-header-actions">
         <ThemeToggle />

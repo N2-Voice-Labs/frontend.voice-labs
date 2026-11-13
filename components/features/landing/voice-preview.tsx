@@ -51,7 +51,7 @@ export function VoicePreview() {
         <div className="conversation-lines" aria-live="polite" ref={lines}>
           <p className="speaker-label">You <span>· 00:04</span></p>
           <p className="speech user-speech">{example.user}</p>
-          <p className="speaker-label agent-speaker">Voice Labs <span>· 00:06</span></p>
+          <p className="speaker-label agent-speaker">UNAI <span>· 00:06</span></p>
           <p className="speech agent-speech">{example.agent}</p>
         </div>
         <div className="preview-wave" aria-hidden="true" ref={waves}>
