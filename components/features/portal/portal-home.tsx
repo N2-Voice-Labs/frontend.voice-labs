@@ -29,6 +29,7 @@ export function PortalHome() {
         <nav className="portal-header-nav" aria-label="Portal">
           <a href="#topics">Topics</a>
           <a href="#how">How it works</a>
+          <Link href="/widget">For your website</Link>
           <Link href="/staff">Staff</Link>
           <span className="portal-demo-badge">Demo · Powered by UNAI</span>
         </nav>

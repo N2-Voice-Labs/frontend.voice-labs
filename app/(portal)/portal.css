@@ -108,6 +108,16 @@ html[data-vl-theme="dark"] .portal-root {
 .portal-turn-who { font: 600 11px/16px var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); }
 .portal-turn-empty { font: var(--type-body-sm); color: var(--text-muted); font-style: italic; }
 .portal-turn-anchor { height: 0; }
+.portal-answer { white-space: pre-wrap; }
+.portal-cite { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 4px; margin: 0 1px 0 3px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); font: 600 10px/1 var(--sans); color: var(--text-muted); text-decoration: none; vertical-align: 2px; }
+a.portal-cite:hover, a.portal-cite:focus-visible { color: var(--text); border-color: currentColor; }
+.portal-sources { margin-top: var(--space-2); padding-top: var(--space-2); border-top: 1px solid var(--border); }
+.portal-sources summary { cursor: pointer; font: 600 11px/16px var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); }
+.portal-sources ol { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 4px; }
+.portal-sources li { display: flex; align-items: baseline; gap: 6px; font: var(--type-body-sm); font-size: 12px; }
+.portal-sources li .portal-cite { margin: 0; flex: none; }
+.portal-sources a { color: var(--text); text-underline-offset: 2px; overflow-wrap: anywhere; }
+.portal-sources li:target { background: var(--id-self-tint); border-radius: 4px; }
 .portal-chat { min-height: 180px; }
 .portal-typing { display: inline-flex; gap: 4px; padding: 6px 0; }
 .portal-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: portal-dot 1s infinite ease-in-out; }
@@ -166,3 +176,40 @@ html[data-vl-theme="dark"] .portal-root {
 .portal-root.portal-root .portal-tab:hover { color: var(--text); background: none; }
 .portal-root.portal-root .portal-link:hover { color: var(--p-accent-hover); background: none; }
 .portal-root.portal-root .portal-topic:hover { color: var(--text); background: var(--surface); }
+
+/* ----- Embedded assistant (/embed, inside the iframe that public/widget.js opens) ----- */
+.portal-root main.portal-embed { position: relative; height: 100dvh; width: 100%; max-width: none; margin: 0; padding: 0; display: flex; flex-direction: column; background: var(--surface-elevated); }
+.portal-embed .portal-assistant { position: static; flex: 1; min-height: 0; overflow-y: auto; border: 0; border-radius: 0; box-shadow: none; }
+.portal-embed .portal-assistant-head { padding-right: 56px; }
+.portal-embed .portal-live-dot { display: none; }
+.portal-root.portal-root .portal-embed-close { position: absolute; top: 14px; right: 14px; z-index: 5; width: 36px; height: 36px; min-height: 0; padding: 0;
+  display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50%; background: var(--surface); color: var(--text-2); cursor: pointer; }
+.portal-root.portal-root .portal-embed-close:hover { color: var(--text); border-color: var(--text-2); }
+.portal-embed-foot { flex: none; margin: 0; padding: var(--space-2) var(--space-5) var(--space-3); border-top: 1px solid var(--border); font: var(--type-small); color: var(--text-muted); }
+
+/* ----- Widget install page (/widget) ----- */
+.portal-root main.widget-page { max-width: 860px; display: flex; flex-direction: column; gap: var(--space-8); padding-top: var(--space-12); }
+.widget-intro h1 { margin-top: var(--space-3); font: 700 clamp(30px, 4.2vw, 48px)/1.1 var(--display); letter-spacing: -.02em; color: var(--text); text-wrap: balance; }
+.widget-try { margin-top: var(--space-4); padding: var(--space-3) var(--space-4); border-radius: var(--radius-control); background: var(--p-accent-tint); color: var(--p-accent-ink); font: 600 14px/20px var(--sans); width: fit-content; }
+.widget-step { display: grid; grid-template-columns: 40px 1fr; gap: var(--space-4); padding-top: var(--space-6); border-top: 1px solid var(--border); }
+.widget-step-n { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--p-accent); color: var(--bg); font: 700 15px/1 var(--display); }
+.widget-step-body { min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.widget-step-body h2 { font: var(--type-h3); color: var(--text); }
+.widget-step-body p { color: var(--text-2); max-width: 64ch; }
+.widget-step-body code { font-family: var(--mono); font-size: .92em; }
+.widget-code { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-surface); background: var(--surface-2); }
+.widget-code pre { flex: 1; min-width: 0; margin: 0; overflow-x: auto; font: var(--type-code); color: var(--text); }
+.widget-options { width: 100%; border-collapse: collapse; font: var(--type-body-sm); }
+.widget-options caption { text-align: left; padding-bottom: var(--space-2); color: var(--text-muted); font: var(--type-small); }
+.widget-options th, .widget-options td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text-2); }
+.widget-options th { font: 600 12px/16px var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.widget-options td:first-child { white-space: nowrap; color: var(--text); }
+.portal-root .widget-bookmarklet { display: inline-flex; align-items: center; gap: var(--space-2); width: fit-content; padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill);
+  background: var(--p-accent); color: var(--bg); font: 600 15px/1 var(--sans); text-decoration: none; cursor: grab; box-shadow: var(--elev-2, 0 2px 8px rgba(0,0,0,.15)); }
+.portal-root .widget-bookmarklet::before { content: "★"; opacity: .8; }
+.widget-note { font: var(--type-small); color: var(--text-muted) !important; }
+.widget-list { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: var(--space-2); color: var(--text-2); }
+@media (max-width: 560px) { .widget-step { grid-template-columns: 1fr; } .widget-options td:first-child { white-space: normal; } }
+.portal-chat-reset { margin: 0; text-align: right; font: var(--type-small); }
+.portal-root.portal-root .widget-download { width: fit-content; text-decoration: none; }
+.widget-steps-small { list-style: decimal; }

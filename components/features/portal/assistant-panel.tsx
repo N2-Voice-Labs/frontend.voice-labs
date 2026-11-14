@@ -2,13 +2,89 @@
 
 import { forwardRef, useEffect, useId, useImperativeHandle, useRef, useState } from "react";
 import { languageName } from "@/lib/languages";
-import { sendDemoChat, STAFF_LANGUAGE, type Handoff } from "@/lib/portal";
+import { sendDemoChat, STAFF_LANGUAGE, type ChatSource, type Handoff } from "@/lib/portal";
 import { describeError } from "@/lib/platform-errors";
 import { HandoffCall } from "./handoff-call";
 import { useAgentCall } from "./use-agent-call";
 
 type Tab = "voice" | "chat";
-type ChatLine = { id: string; role: "user" | "assistant"; text: string };
+type ChatLine = { id: string; role: "user" | "assistant"; text: string; sources?: ChatSource[] };
+
+// Kept for this browser tab, so a refresh or a click to another page (the website widget) doesn't lose the chat.
+const TAB_KEY = "portal-assistant-tab";
+const CHAT_KEY = "portal-chat";
+const MAX_SAVED_LINES = 60;
+
+export function loadSavedChat(): { lines: ChatLine[]; conversationId: string | null } {
+  try {
+    const raw = window.sessionStorage.getItem(CHAT_KEY);
+    if (!raw) return { lines: [], conversationId: null };
+    const saved = JSON.parse(raw) as { lines?: unknown; conversationId?: unknown };
+    const lines = Array.isArray(saved.lines)
+      ? saved.lines.filter((l): l is ChatLine => !!l && typeof l === "object" && typeof (l as ChatLine).id === "string"
+          && ((l as ChatLine).role === "user" || (l as ChatLine).role === "assistant") && typeof (l as ChatLine).text === "string")
+          .map((l) => ({ ...l, sources: cleanSources(l.sources) }))
+      : [];
+    return { lines, conversationId: typeof saved.conversationId === "string" ? saved.conversationId : null };
+  } catch {
+    return { lines: [], conversationId: null };
+  }
+}
+
+function cleanSources(value: unknown): ChatSource[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const ok = value.filter((s): s is ChatSource => !!s && typeof s === "object" && typeof (s as ChatSource).n === "number" && typeof (s as ChatSource).title === "string");
+  return ok.length ? ok : undefined;
+}
+
+/** Official pages only: a source URL is shown as a link only when it is plain http(s). */
+const safeUrl = (url?: string) => (url && /^https?:\/\//i.test(url) ? url : undefined);
+
+/** The answer with its [n] markers as small numbered links to the cited source. */
+export function AnswerText({ text, sources, idPrefix }: { text: string; sources?: ChatSource[]; idPrefix: string }) {
+  const known = new Set((sources ?? []).map((s) => s.n));
+  const parts = text.split(/(\[\d+\])/g);
+  return (
+    <span className="portal-answer">
+      {parts.map((part, i) => {
+        const m = /^\[(\d+)\]$/.exec(part);
+        if (!m) return part;
+        const n = Number(m[1]);
+        if (!known.has(n)) return null;
+        return <a key={i} className="portal-cite" href={`#${idPrefix}-src-${n}`} aria-label={`Source ${n}`}>{n}</a>;
+      })}
+    </span>
+  );
+}
+
+export function SourceList({ sources, idPrefix }: { sources: ChatSource[]; idPrefix: string }) {
+  return (
+    <details className="portal-sources" open>
+      <summary>Sources</summary>
+      <ol>
+        {sources.map((s) => {
+          const url = safeUrl(s.url);
+          const label = s.heading && s.heading !== s.title ? `${s.title} \u2014 ${s.heading}` : s.title;
+          return (
+            <li key={s.n} id={`${idPrefix}-src-${s.n}`} title={s.snippet}>
+              <span className="portal-cite" aria-hidden="true">{s.n}</span>
+              {url ? <a href={url} target="_blank" rel="noopener noreferrer">{label}</a> : <span>{label}</span>}
+            </li>
+          );
+        })}
+      </ol>
+    </details>
+  );
+}
+
+function saveChat(lines: ChatLine[], conversationId: string | null) {
+  try {
+    if (lines.length === 0 && !conversationId) window.sessionStorage.removeItem(CHAT_KEY);
+    else window.sessionStorage.setItem(CHAT_KEY, JSON.stringify({ lines: lines.slice(-MAX_SAVED_LINES), conversationId }));
+  } catch {
+    /* storage blocked: the chat just isn't kept */
+  }
+}
 
 export type AssistantHandle = { ask: (question: string) => void };
 
@@ -24,6 +100,20 @@ export const AssistantPanel = forwardRef<AssistantHandle>(function AssistantPane
   const [chatDraft, setChatDraft] = useState("");
   const chatInput = useRef<HTMLTextAreaElement>(null);
   const ids = useId();
+
+  // Restored after mount (the page is prerendered), then kept in step with the tab.
+  const tabRestored = useRef(false);
+  useEffect(() => {
+    try {
+      const saved = window.sessionStorage.getItem(TAB_KEY);
+      if (saved === "chat" || saved === "voice") setTab(saved);
+    } catch { /* ignore */ }
+    tabRestored.current = true;
+  }, []);
+  useEffect(() => {
+    if (!tabRestored.current) return;
+    try { window.sessionStorage.setItem(TAB_KEY, tab); } catch { /* ignore */ }
+  }, [tab]);
 
   useImperativeHandle(ref, () => ({
     ask(question) {
@@ -181,6 +271,24 @@ function ChatPane({ draft, onDraft, inputRef, onUseVoice }: { draft: string; onD
   const [suggestOfficer, setSuggestOfficer] = useState(false);
   const end = useRef<HTMLLIElement>(null);
   const inputId = useId();
+  const restored = useRef(false);
+
+  useEffect(() => {
+    const saved = loadSavedChat();
+    if (saved.lines.length) setLines(saved.lines);
+    if (saved.conversationId) setConversationId(saved.conversationId);
+    restored.current = true;
+  }, []);
+  useEffect(() => {
+    if (restored.current) saveChat(lines, conversationId);
+  }, [lines, conversationId]);
+
+  function newChat() {
+    setLines([]);
+    setConversationId(null);
+    setSuggestOfficer(false);
+    setError(null);
+  }
 
   useEffect(() => {
     end.current?.scrollIntoView({ block: "nearest" });
@@ -196,11 +304,11 @@ function ChatPane({ draft, onDraft, inputRef, onUseVoice }: { draft: string; onD
     try {
       const reply = await sendDemoChat(text, conversationId);
       setConversationId(reply.conversation_id);
-      setLines((l) => [...l, { id: `a${Date.now()}`, role: "assistant", text: reply.reply }]);
+      setLines((l) => [...l, { id: `a${Date.now()}`, role: "assistant", text: reply.reply, sources: cleanSources(reply.sources) }]);
       if (reply.handoff_suggested) setSuggestOfficer(true);
     } catch (cause) {
       const status = (cause as { status?: number }).status;
-      setError(status === 429 ? "This chat has reached its limit. Start a new chat by reloading the page." : describeError(cause, "The assistant couldn't answer just now. Please try again."));
+      setError(status === 429 ? "This chat has reached its limit. Choose \u201cNew chat\u201d to start again." : describeError(cause, "The assistant couldn't answer just now. Please try again."));
     } finally {
       setSending(false);
     }
@@ -213,7 +321,8 @@ function ChatPane({ draft, onDraft, inputRef, onUseVoice }: { draft: string; onD
         {lines.map((line) => (
           <li key={line.id} className="portal-turn" data-role={line.role}>
             <span className="portal-turn-who">{line.role === "user" ? "You" : "Assistant"}</span>
-            <span>{line.text}</span>
+            {line.role === "assistant" ? <AnswerText text={line.text} sources={line.sources} idPrefix={line.id} /> : <span>{line.text}</span>}
+            {line.role === "assistant" && line.sources?.length ? <SourceList sources={line.sources} idPrefix={line.id} /> : null}
           </li>
         ))}
         {sending && <li className="portal-turn" data-role="assistant"><span className="portal-turn-who">Assistant</span><span className="portal-typing" aria-label="Typing"><i /><i /><i /></span></li>}
@@ -237,6 +346,9 @@ function ChatPane({ draft, onDraft, inputRef, onUseVoice }: { draft: string; onD
         />
         <button type="submit" className="portal-btn portal-btn-primary" disabled={!draft.trim() || sending}>Send</button>
       </form>
+      {lines.length > 0 && (
+        <p className="portal-chat-reset"><button type="button" className="portal-link" onClick={newChat} disabled={sending}>New chat</button></p>
+      )}
     </div>
   );
 }

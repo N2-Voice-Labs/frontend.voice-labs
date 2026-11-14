@@ -114,3 +114,27 @@ test("401 signs out with message and 409 reports an already claimed student", as
   const { unmount } = render(<StaffConsole />); await screen.findByText("That staff key wasn't accepted."); expect(sessionStorage.getItem("portal-staff-key")).toBeNull(); unmount();
   mocks.list.mockResolvedValue([queueItem]); sessionStorage.setItem("portal-staff-key", "staff-secret"); render(<StaffConsole />); await screen.findByText("Sam"); mocks.accept.mockRejectedValueOnce(Object.assign(new Error("claimed"), { status: 409 })); fireEvent.click(screen.getByRole("button", { name: "Pick up" })); await screen.findByText(/already picked up/);
 });
+
+test("a saved chat is restored for the tab, and malformed saved data is ignored", async () => {
+  const { loadSavedChat } = await import("@/components/features/portal/assistant-panel");
+  sessionStorage.setItem("portal-chat", JSON.stringify({ conversationId: "c9", lines: [
+    { id: "u1", role: "user", text: "Tuition?" }, { id: "x", role: "system", text: "nope" }, { nope: true },
+  ] }));
+  expect(loadSavedChat()).toEqual({ conversationId: "c9", lines: [{ id: "u1", role: "user", text: "Tuition?" }] });
+  sessionStorage.setItem("portal-chat", "{not json");
+  expect(loadSavedChat()).toEqual({ conversationId: null, lines: [] });
+  sessionStorage.clear();
+});
+
+test("chat answers show their [n] citations as links to the cited official pages, and drop unknown markers", async () => {
+  const { AnswerText, SourceList } = await import("@/components/features/portal/assistant-panel");
+  const sources = [{ n: 1, title: "Tuition", heading: "Undergraduate", url: "https://apply.inha.ac.kr/x", snippet: "₩5,462,000" },
+                   { n: 2, title: "Bad", url: "javascript:alert(1)" }];
+  const { container } = render(<><AnswerText text="Engineering is ₩5,462,000 [1]. Other [3]." sources={sources} idPrefix="a1" /><SourceList sources={sources} idPrefix="a1" /></>);
+  const cites = container.querySelectorAll("a.portal-cite");
+  expect(cites).toHaveLength(1);
+  expect(cites[0].getAttribute("href")).toBe("#a1-src-1");
+  expect(container.textContent).not.toContain("[3]");
+  expect(screen.getByRole("link", { name: "Tuition — Undergraduate" }).getAttribute("href")).toBe("https://apply.inha.ac.kr/x");
+  expect(screen.queryByRole("link", { name: "Bad" })).toBeNull();
+});

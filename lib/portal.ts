@@ -64,7 +64,9 @@ export const acceptHandoff = (key: string, id: string) =>
 export const getHandoffTranscript = (key: string, id: string) =>
   request<ConversationMessage[]>(`/staff/handoffs/${encodeURIComponent(id)}/transcript`, staff(key));
 
-export type ChatReply = { conversation_id: string; reply: string; handoff_suggested?: boolean };
+/** A knowledge passage the answer cites as [n]; url is the official page it came from. */
+export type ChatSource = { n: number; title: string; heading?: string; url?: string; snippet?: string };
+export type ChatReply = { conversation_id: string; reply: string; handoff_suggested?: boolean; sources?: ChatSource[] };
 
 export const sendDemoChat = (message: string, conversationId?: string | null, key = PORTAL_AGENT_KEY) =>
   request<ChatReply>(`/demo/agents/${encodeURIComponent(key)}/chat`, {
