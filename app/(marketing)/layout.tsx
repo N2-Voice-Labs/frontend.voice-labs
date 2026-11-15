@@ -11,11 +11,11 @@ export default function MarketingLayout({ children }: Readonly<{ children: React
     <a className="skip-link" href="#main-content">Skip to content</a>
     <AmbientBackground />
     <header className="marketing-header">
-      <Link className="marketing-brand" href="/" aria-label="Voice Labs home"><span className="brand-glyph">v<span>.</span></span><span>voice labs</span></Link>
+      <Link className="marketing-brand" href="/" aria-label="UNAI home"><span className="brand-glyph">u<span>.</span></span><span>unai</span></Link>
       <nav className="marketing-nav" aria-label="Main navigation">
         <a href="#product">Product</a>
         <a href="#platform">How it works</a>
-        <a href="#compare">Why Voice Labs</a>
+        <a href="#compare">Why UNAI</a>
       </nav>
       <div className="header-actions">
         <ThemeToggle />
@@ -25,7 +25,7 @@ export default function MarketingLayout({ children }: Readonly<{ children: React
       </div>
     </header>
     {children}
-    <footer className="marketing-footer"><Link className="marketing-brand footer-brand" href="/"><span className="brand-glyph">v<span>.</span></span><span>voice labs</span></Link><p>Make room for more voices.</p><div><a href="#product">Product</a><a href="#platform">How it works</a><Link href="/call">Start a call</Link><Link href="/agents">Open workspace</Link></div><span className="footer-copy">© 2026 Voice Labs</span></footer>
+    <footer className="marketing-footer"><Link className="marketing-brand footer-brand" href="/"><span className="brand-glyph">u<span>.</span></span><span>unai</span></Link><p>Make room for more voices.</p><div><a href="#product">Product</a><a href="#platform">How it works</a><Link href="/call">Start a call</Link><Link href="/agents">Open workspace</Link></div><span className="footer-copy">© 2026 UNAI</span></footer>
     <LandingMotion />
   </div>;
 }

@@ -13,6 +13,6 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
     <DashboardHeader />
     <CommandPalette />
     <div id="main-content" tabIndex={-1} className="dash-content">{children}</div>
-    <footer className="site-footer">Voice Labs <span>·</span> Voice agent workspace</footer>
+    <footer className="site-footer">UNAI <span>·</span> Voice agent workspace</footer>
   </div>;
 }

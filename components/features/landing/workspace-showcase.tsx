@@ -131,7 +131,7 @@ export function WorkspaceShowcase() {
 
           <div className="showcase-stage" ref={stageRef}>
             <div className="showcase-glow" ref={glowRef} aria-hidden="true" />
-            <div className="showcase-window" ref={windowRef} role="group" aria-label="Illustrative Voice Labs workspace preview">
+            <div className="showcase-window" ref={windowRef} role="group" aria-label="Illustrative UNAI workspace preview">
               <div className="showcase-window-inner" ref={innerRef}>
                 <div className="workspace-sidebar" aria-hidden="true">
                   <span className="mini-brand">v<span>.</span></span>
